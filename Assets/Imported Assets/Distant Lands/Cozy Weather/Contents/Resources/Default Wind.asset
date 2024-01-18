@@ -36,8 +36,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  VFXMod: {fileID: 0}
   windAmount: 0.5
   windSpeed: 1
   windChangeSpeed: 1
-  weight: 0
