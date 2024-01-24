@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -296,7 +296,7 @@ public class clothing : MonoBehaviour
             shoes3.SetActive(true);
             shoes3.GetComponent<Renderer>().materials[0].mainTexture = shoes3_textures[topChoice];
             j.value = topChoice+1; 
-            break;    
+            break;      
         }
         
     }
