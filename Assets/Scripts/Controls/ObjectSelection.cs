@@ -14,15 +14,18 @@ public class ObjectSelection : MonoBehaviour
         inputManager.OnStartTouch += Move;
     }
     private void OnDisable(){
-        inputManager.OnStartTouch -= Move;
+        inputManager.OnEndTouch -= Move;
     }
-    public void Move(Vector3 screenPosition, float time){
-        Destroy(this);
+    public void Move(Vector2 screenPosition, float time){
         RaycastHit hit;
-        Ray selectionRay = mainCamera.ScreenPointToRay(screenPosition);
+        Vector3 x = new Vector3(screenPosition.x, screenPosition.y, 20);
+        Ray selectionRay = mainCamera.ScreenPointToRay(x);
+        //Debug.DrawRay(selectionRay.origin, selectionRay.direction * 20);
         if(Physics.Raycast(selectionRay, out hit)){
             GameObject selectedObject = hit.transform.gameObject;
-            print(selectedObject.name);
+            if(selectedObject.GetComponent<Interactable>() != null){
+                print(selectedObject.name);
+            }
         }
     }
 }
