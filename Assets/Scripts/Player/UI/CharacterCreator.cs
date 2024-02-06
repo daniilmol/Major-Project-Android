@@ -176,7 +176,6 @@ public class CharacterCreator : MonoBehaviour
         {
             ageScale = 1.0f;
         }
-        Debug.Log("In slider, setting weight to " + characterClothing.weight);
         meoples[curSim].transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
         characterClothing.weight = weight;
     }

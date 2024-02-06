@@ -54,16 +54,16 @@ public class InputManager : Singleton<InputManager>
     }
     private void StartTouchPrimary(InputAction.CallbackContext ctx){
         if(OnStartSwipe != null){
-            OnStartSwipe(Utils.ScreenToWorld(Camera.main, touchControls.Touch.PrimaryPosition.ReadValue<Vector2>()), (float)ctx.startTime);
+            OnStartSwipe(touchControls.Touch.PrimaryPosition.ReadValue<Vector2>(), (float)ctx.startTime);
         }
     }
     private void EndTouchPrimary(InputAction.CallbackContext ctx){
         if(OnEndSwipe != null){
-            OnEndSwipe(Utils.ScreenToWorld(Camera.main, touchControls.Touch.PrimaryPosition.ReadValue<Vector2>()), (float)ctx.time);
+            OnEndSwipe(touchControls.Touch.PrimaryPosition.ReadValue<Vector2>(), (float)ctx.time);
         }
     }
     public Vector2 PrimaryPosition(){
-        return Utils.ScreenToWorld(Camera.main, touchControls.Touch.PrimaryPosition.ReadValue<Vector2>());
+        return touchControls.Touch.PrimaryPosition.ReadValue<Vector2>();
     }
     IEnumerator ZoomDetection(){
         float previousDistance = 0f;

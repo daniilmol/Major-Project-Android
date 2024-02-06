@@ -1,18 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
-public class Advertisement : MonoBehaviour
+public class Advertisement 
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    private int needIndex;
+    public Advertisement(int index){
+        needIndex = index;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+    void Update(){
+        Debug.Log("HAHAHAHAH");
     }
 }

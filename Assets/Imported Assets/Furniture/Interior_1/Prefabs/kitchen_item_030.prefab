@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: c719ad1d4caa9984782e0715d30fc9f2, type: 3}
@@ -60,6 +61,15 @@ PrefabInstance:
       value: kitchen_item_030
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c719ad1d4caa9984782e0715d30fc9f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8956536179290228549}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c719ad1d4caa9984782e0715d30fc9f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8159950923810397067}
   m_SourcePrefab: {fileID: 100100000, guid: c719ad1d4caa9984782e0715d30fc9f2, type: 3}
 --- !u!1 &2415672713015359270 stripped
 GameObject:
@@ -74,9 +84,45 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2415672713015359270}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
+  serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2764537904203036578, guid: c719ad1d4caa9984782e0715d30fc9f2, type: 3}
+--- !u!114 &8159950923810397067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2415672713015359270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2a407ba53f5d5044b7e7161ea78dc28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  price: 1250
+  isSurface: 0
+  canGetDirty: 1
+  upgradeable: 1
+  canBreak: 1
+  decoFactor: 0
+  interactions:
+  - Have Breakfast
+  - Serve Breakfast
+  - Have Lunch
+  - Serve Lunch
+  - Have Dinner
+  - Serve Dinner
+  - Upgrade
+  - Clean
+  needIndices: ffffffff01000000ffffffff01000000ffffffff01000000ffffffff07000000
