@@ -9,7 +9,7 @@ public class Chair : Furniture
     [SerializeField] int[] minAge;
     [SerializeField] int[] maxAge;
     Dictionary<string, int> dictInteractions;
-    void Start(){
+    void Awake(){
         dictInteractions = new Dictionary<string, int>();
         for(int i = 0; i < needIndices.Length; i++){
             dictInteractions.Add(interactionNames[i], needIndices[i]);

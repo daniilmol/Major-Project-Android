@@ -1,13 +1,284 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UI;
+using TMPro;
 
 public class Meople : MonoBehaviour
 {
     private clothing meopleClothing;
+    private Brain brain;
+    private NavMeshAgent agent;
+    private Need[] needs = new Need[6];
+    private int happiness;
+    private bool interacting;
+    private bool withinInteractionRange = false;
+    private bool wokenUp = false;
+    private bool eating = false;
+    private BoxCollider targetCollider;
+    [SerializeField] float[] needVals = {100, 100, 50, 100, 100, 100};
+    private ArrayList advertisements = new ArrayList();
+    private List<MeopleAction> actionQueue = new List<MeopleAction>();
+    private List<GameObject> actionQueueButtons = new List<GameObject>();
     [SerializeField] GameObject meople;
+    [SerializeField] GameObject button;
+    private Image queuePanel;
+    
     void Start(){
         meopleClothing = GetComponent<clothing>();
+        brain = new Brain();
+        agent = GetComponent<NavMeshAgent>();
+        interacting = false;
+        targetCollider = null;
+        InitializeNeeds();
+        StartCoroutine(Drain());
+        StartCoroutine(ProcessAdvertisements());
+        GameObject p = GameObject.Find("ActionQueue");
+        if(p != null){
+            queuePanel = p.GetComponent<Image>();
+        }
+    }
+    void Update(){
+        CheckForMoreImportantNeeds();
+        CheckIfEating();
+        for(int i = 0; i < needs.Length; i++){
+            needVals[i] = needs[i].GetAmount();
+            if(needs[i].Repleneshing()){
+                needs[i].ReplenishNeed();
+            }else{
+                if(eating && i == 3){
+                    continue;
+                }
+                needs[i].StopRepleneshing();
+            }
+        }
+        if(actionQueue.Count > 0 && !interacting){
+            Vector3 interactionZone = GetAvailableInteractionZone(actionQueue[0].GetFurniture());
+            if((interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null) || (targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange)){
+                //print(interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null);
+                //print(targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange);
+                //print(targetCollider == null);
+                Dequeue();
+                return;
+            }
+            if(interactionZone != Vector3.zero)
+                agent.SetDestination(interactionZone);
+            if(withinInteractionRange){
+                agent.ResetPath();
+                interacting = true;
+                actionQueue[0].GetFurniture().Interact(actionQueue[0].GetIndex(), this);
+            }
+        }
+    }
+    private void CheckIfEating(){
+        if(actionQueue.Count > 0 && interacting && actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex() == 1){
+            needs[3].SetDrainAmount(0.25f);
+            print("EATING");
+            eating = true;
+        }else if(!needs[3].Repleneshing()){
+            needs[3].StopRepleneshing();
+            print("NOT EATING");
+            eating = false;
+        }
+    }
+    private void CheckForMoreImportantNeeds(){
+        if(actionQueue.Count > 0 && needs[1].GetAmount() < -75 && actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex() != 1){
+            if(actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex() == 0 && needs[0].GetAmount() > 80){
+                wokenUp = true;
+            }
+            Dequeue();
+        }else if(actionQueue.Count > 0 && needs[3].GetAmount() < -75 && actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex() != 3){
+            if(actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex() == 0 && needs[0].GetAmount() > 80){
+                wokenUp = true;
+            }
+            Dequeue();
+        }
+    }
+    public BoxCollider GetTargetCollider(){
+        return targetCollider;
+    }
+    public void WithinRange(String n){
+        if(!targetCollider.GetComponent<InteractionZone>().IsFull()){
+            if(!withinInteractionRange)
+                targetCollider.GetComponent<InteractionZone>().Use(true, this, false);
+            withinInteractionRange = true;
+        }
+    }
+    private Vector3 GetAvailableInteractionZone(Furniture furniture){
+        foreach(Transform zone in furniture.transform){
+            if(!zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider){
+                targetCollider = zone.GetComponent<BoxCollider>();
+                return zone.position;
+            }
+        }
+        return Vector3.zero;
+    }
+    public void Dequeue(){
+        if(targetCollider != null){
+            targetCollider.GetComponent<InteractionZone>().Use(false, this, false);
+        }
+        targetCollider = null;
+        if(actionQueue.Count > 0){
+            actionQueue.RemoveAt(0);
+        }
+        interacting = false;
+        withinInteractionRange = false;
+        if(GameMaster.selectedMeople == this && actionQueueButtons.Count > 0){
+            Destroy(actionQueueButtons[0]);
+            actionQueueButtons.RemoveAt(0);
+            RepositionQueueButtons();
+        }
+    }
+    public void DequeueAt(int index){
+        if(index == 0){
+            actionQueue[index].GetFurniture().StopAllCoroutines();
+            targetCollider.GetComponent<InteractionZone>().Use(false, this, false);
+            targetCollider = null;
+            brain.Privacy(false);
+            brain.Busy(false);
+            if(actionQueue[index].GetFurniture().GetInteractions()[actionQueue[index].GetIndex()].GetNeedIndex() != -1){
+                needs[actionQueue[index].GetFurniture().GetInteractions()[actionQueue[index].GetIndex()].GetNeedIndex()].StopRepleneshing();
+            }else{
+                int replenishingNeed = FindRepleneshingNeed();
+            }
+            ResetDestination();
+            interacting = false;
+            withinInteractionRange = false;
+        }
+        actionQueue.RemoveAt(index);
+        if(GameMaster.selectedMeople == this){
+            Destroy(actionQueueButtons[index]);
+            actionQueueButtons.RemoveAt(index);
+            RepositionQueueButtons();
+        }
+    }
+    private int FindRepleneshingNeed(){
+        for(int i = 0; i < needs.Length; i++){
+            if(needs[i].Repleneshing()){
+                return i;
+            }
+        }
+        return -1;
+    }
+    public void Enqueue(MeopleAction meopleAction){
+        if(actionQueue.Count < 8){
+            actionQueue.Add(meopleAction);
+            if(GameMaster.selectedMeople == this){
+                GameObject queueButton = Instantiate(button, queuePanel.transform);
+                TextMeshProUGUI queueIndicator = queueButton.GetComponentInChildren<TextMeshProUGUI>();
+                queueIndicator.SetText(meopleAction.GetFurniture().GetInteractions()[meopleAction.GetIndex()].GetName());
+                float yPosition = 0;
+                yPosition = -actionQueueButtons.Count * 50;
+                queueButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(50, yPosition);
+                queueButton.GetComponent<RectTransform>().sizeDelta = new Vector2(250, 50);
+                int buttonIndex = actionQueue.Count - 1;
+                queueButton.GetComponent<Button>().onClick.AddListener(delegate { DequeueFromActionList(buttonIndex); }); 
+                actionQueueButtons.Add(queueButton);
+            }
+        }
+    }
+    public void DequeueFromActionList(int x) {
+        DequeueAt(x);
+    }
+    private void RepositionQueueButtons(){
+        for(int i = 0; i < actionQueueButtons.Count; i++){
+            float yPosition = -i * 50;
+            actionQueueButtons[i].GetComponent<RectTransform>().anchoredPosition = new Vector2(50, yPosition);
+            actionQueueButtons[i].GetComponent<Button>().onClick.RemoveAllListeners();
+            int index = i;
+            actionQueueButtons[i].GetComponent<Button>().onClick.AddListener(delegate { DequeueFromActionList(index); }); 
+        }
+    }
+    public void NoNeedToSleep(){
+        wokenUp = false;
+    }
+    public bool WokenUp(){
+        return wokenUp;
+    }
+    public bool IsBusy(){
+        return brain.IsBusy();
+    }
+    public void Busy(bool busy){
+        brain.Busy(busy);
+    }
+    public bool RequiresPrivacy(){
+        return brain.RequiresPrivacy();
+    }
+    public void Privacy(bool privacy){
+        brain.Privacy(privacy);
+    }
+    public List<MeopleAction> GetActions(){
+        return actionQueue;
+    }
+    public IEnumerator ProcessAdvertisements(){
+        while(true){
+            if(advertisements.Count > 0 && actionQueue.Count < 9 && !interacting){
+                MeopleAction meopleAction;
+                if(wokenUp){
+                    Need[] trickToSleep = new Need[6];
+                    trickToSleep[0] = new Energy(0.20f, 0.4f);
+                    trickToSleep[1] = new Hunger(0.3f, 3f);
+                    trickToSleep[2] = new Happiness(0.25f, 1f);
+                    trickToSleep[3] = new Bladder(0.1f, 10f);
+                    trickToSleep[4] = new Hygiene(0.1f, 5f);
+                    trickToSleep[5] = new Social(0.05f, 2f);
+                    trickToSleep[0].SetAmount(-100);
+                    for(int i = 1; i < trickToSleep.Length; i++){
+                        trickToSleep[i].SetAmount(100);
+                    }
+                    meopleAction = brain.ProcessAdvertisements(advertisements, trickToSleep);
+                }else{
+                    meopleAction = brain.ProcessAdvertisements(advertisements, needs);
+                }
+                if(meopleAction.GetFurniture() is Bed){
+                    NoNeedToSleep();
+                }
+                if(!interacting)
+                    Enqueue(meopleAction);
+            }
+            yield return new WaitForSeconds(5f);
+        }
+    }
+
+    private void InitializeNeeds(){
+        needs[0] = new Energy(0.20f, 0.4f);
+        needs[1] = new Hunger(0.3f, 3f);
+        needs[2] = new Happiness(0.25f, 1f);
+        needs[3] = new Bladder(0.1f, 10f);
+        needs[4] = new Hygiene(0.1f, 5f);
+        needs[5] = new Social(0.05f, 2f);
+        for(int i = 0; i < needs.Length; i++){
+            needs[i].SetAmount(needVals[i]);
+        }
+    }
+    public IEnumerator Drain(){
+        while(true){
+            yield return new WaitForSeconds(1);
+            for(int i = 0; i < needs.Length; i++){
+                needs[i].Drain();
+            }
+        }
+    }
+    public void AddAdvertisement(Advertisement advertisement){
+        advertisements.Add(advertisement);
+    }
+    public void ClearAdvertisements(){
+        advertisements.Clear();
+    }
+    public void ResetDestination(){
+        agent.ResetPath();
+    }
+    public void SetDestination(Vector3 position){
+        agent.SetDestination(position);
+    }
+    public float[] GetNeeds(){
+        return needVals;
+    }
+    public Need[] GetActualNeeds(){
+        return needs;
     }
     public string GetFirstName(){
         return meopleClothing.firstName;
@@ -92,6 +363,10 @@ public class Meople : MonoBehaviour
     public float GetWeight(){
         return meopleClothing.weight;
     }
+    public float[] GetPersonality(){
+        float[] personality = {meopleClothing.openness, meopleClothing.agreeableness, meopleClothing.conscientiousness, meopleClothing.extraversion, meopleClothing.neuroticism};
+        return personality;
+    }
     public void LoadMeople(){
         MeopleData[] meopleData = CharacterCreatorSaver.LoadFamily();
         for(int i = 0; i < meopleData.Length; i++){
@@ -133,6 +408,11 @@ public class Meople : MonoBehaviour
                 ageScale = 1.0f;
             }
             createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
+            meopleStats.openness = meopleData[i].GetPersonality()[0];
+            meopleStats.agreeableness = meopleData[i].GetPersonality()[1];
+            meopleStats.conscientiousness = meopleData[i].GetPersonality()[2];
+            meopleStats.extraversion = meopleData[i].GetPersonality()[3];
+            meopleStats.neuroticism = meopleData[i].GetPersonality()[4];
         }
     }
 }

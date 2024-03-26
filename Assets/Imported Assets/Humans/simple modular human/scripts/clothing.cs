@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 public class clothing : MonoBehaviour
 {
 
@@ -155,6 +156,11 @@ public class clothing : MonoBehaviour
     public int age;
     public string firstName;
     public string lastName;
+    public float openness;
+    public float agreeableness;
+    public float extraversion;
+    public float conscientiousness;
+    public float neuroticism;
     public GameObject[] hairStyles;
     public Texture[][] hairTextures = new Texture[5][];
     public Texture[][] topTextures = new Texture[5][];
@@ -204,7 +210,7 @@ public class clothing : MonoBehaviour
         bottomTextures[1] = trousers_textures;
     }
 
-    public void GenerateRandomCharacter(TMP_Dropdown a,TMP_Dropdown b,TMP_Dropdown c,TMP_Dropdown d,TMP_Dropdown e, TMP_Dropdown f, TMP_Dropdown g, TMP_Dropdown h, TMP_Dropdown i, TMP_Dropdown j, TMP_Dropdown k, GameObject[] skinButtons, Button maleButton, Button femaleButton){
+    public void GenerateRandomCharacter(TMP_Dropdown a,TMP_Dropdown b,TMP_Dropdown c,TMP_Dropdown d,TMP_Dropdown e, TMP_Dropdown f, TMP_Dropdown g, TMP_Dropdown h, TMP_Dropdown i, TMP_Dropdown j, TMP_Dropdown k, GameObject[] skinButtons, Button maleButton, Button femaleButton, Slider openness, Slider agreeableness, Slider conscientiousness, Slider extraversion, Slider neuroticism){
         int skinColor = UnityEngine.Random.Range(0, 5);
         skin_head.GetComponent<Renderer>().materials[0].mainTexture = skin_textures[skinColor];
         skin_body.GetComponent<Renderer>().materials[0].mainTexture = skin_textures[skinColor];
@@ -298,7 +304,20 @@ public class clothing : MonoBehaviour
             j.value = topChoice+1; 
             break;      
         }
-        
+        float[] personalities = new float[5];
+        for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+            personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+        }
+        openness.value = personalities[0];
+        agreeableness.value = personalities[1];
+        conscientiousness.value = personalities[2];
+        extraversion.value = personalities[3];
+        neuroticism.value = personalities[4];
+        this.openness = personalities[0];
+        this.agreeableness = personalities[1];
+        this.conscientiousness = personalities[2];
+        this.extraversion = personalities[3];
+        this.neuroticism = personalities[4];
     }
 
 /**

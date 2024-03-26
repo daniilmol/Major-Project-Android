@@ -205,6 +205,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 79423039a1321454092c0c893f826835, type: 3}
       insertIndex: -1
       addedObject: {fileID: 967607234412588864}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 79423039a1321454092c0c893f826835, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7563549983928764559}
   m_SourcePrefab: {fileID: 100100000, guid: 79423039a1321454092c0c893f826835, type: 3}
 --- !u!4 &6299071892052138787 stripped
 Transform:
@@ -238,3 +241,32 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1227108998463877861, guid: 79423039a1321454092c0c893f826835, type: 3}
+--- !u!114 &7563549983928764559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6638618316440732057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b89394f3582c96349a9989c6c6d40d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  price: 2000
+  quality: 5
+  isSurface: 0
+  canGetDirty: 0
+  upgradeable: 0
+  canBreak: 0
+  decoFactor: 0
+  interactionNames:
+  - Sleep
+  - Nap
+  - Lie Down
+  - Yeehaw!
+  - Try For Baby
+  needIndices: 0000000000000000ffffffffffffffffffffffff
+  minAge: 0100000001000000010000000200000003000000
+  maxAge: 0400000004000000040000000400000003000000
+  availableSlots: 0000

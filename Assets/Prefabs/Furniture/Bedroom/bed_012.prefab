@@ -18,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -73,6 +73,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 378189084336162373}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7612808072885815855}
   m_SourcePrefab: {fileID: 100100000, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
 --- !u!1 &2510047648185341094 stripped
 GameObject:
@@ -101,6 +104,35 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3039700724500737377, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
+--- !u!114 &7612808072885815855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2510047648185341094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b89394f3582c96349a9989c6c6d40d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  price: 150
+  quality: 2
+  isSurface: 0
+  canGetDirty: 0
+  upgradeable: 0
+  canBreak: 0
+  decoFactor: 0
+  interactionNames:
+  - Sleep
+  - Nap
+  - Lie Down
+  - Yeehaw!
+  - Try For Baby
+  needIndices: 0000000000000000ffffffff
+  minAge: 000000000000000000000000
+  maxAge: 020000000200000002000000
+  availableSlots: 00
 --- !u!4 &2999023127533719068 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 721f2d9ef14506a4c850ebbe91e14f0e, type: 3}
@@ -124,7 +156,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 895421310309597159, guid: 741299002e2cc9f41b4d49a5bc888275, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 895421310309597159, guid: 741299002e2cc9f41b4d49a5bc888275, type: 3}
       propertyPath: m_LocalPosition.z
@@ -190,7 +222,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 895421310309597159, guid: 741299002e2cc9f41b4d49a5bc888275, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 895421310309597159, guid: 741299002e2cc9f41b4d49a5bc888275, type: 3}
       propertyPath: m_LocalPosition.z

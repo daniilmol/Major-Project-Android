@@ -1,16 +1,21 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.Interactions;
 
-public class Advertisement 
+public class Advertisement
 {
     private int needIndex;
-    public Advertisement(int index){
-        needIndex = index;
+    private Interaction interaction;
+
+    public void SetInteraction(Interaction interaction){
+        this.interaction = interaction;
     }
-    void Update(){
-        Debug.Log("HAHAHAHAH");
+    public Interaction GetInteraction(){
+        return interaction;
+    }
+    public int GetNeedIndex(){
+        return needIndex;
+    }
+    public void SetIndex(int needIndex){
+        this.needIndex = needIndex;
     }
 }

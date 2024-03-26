@@ -438,6 +438,11 @@ MonoBehaviour:
   age: 0
   firstName: 
   lastName: 
+  openness: 0
+  agreeableness: 0
+  extraversion: 0
+  conscientiousness: 0
+  neuroticism: 0
   hairStyles: []
   skinColor: {fileID: 0}
 --- !u!65 &7929453050515332205
@@ -473,7 +478,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7efb79429e5eb4640be3442664c876a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  needVals:
+  - 100
+  - 100
+  - 50
+  - 100
+  - 100
+  - 100
   meople: {fileID: 0}
+  button: {fileID: 1576198995497258880, guid: ea1ffc2025256814ebb32160003ee028, type: 3}
 --- !u!1001 &3771468904094609277
 PrefabInstance:
   m_ObjectHideFlags: 0

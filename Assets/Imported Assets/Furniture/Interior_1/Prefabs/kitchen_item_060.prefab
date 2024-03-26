@@ -111,18 +111,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   price: 500
+  quality: 0
   isSurface: 0
   canGetDirty: 1
   upgradeable: 1
   canBreak: 1
   decoFactor: 0
-  interactions:
-  - Have Breakfast
-  - Serve Breakfast
-  - Have Lunch
-  - Serve Lunch
-  - Have Dinner
-  - Serve Dinner
-  - Upgrade
-  - Clean
+  interactionNames: []
   needIndices: ffffffff01000000ffffffff01000000ffffffff01000000ffffffff07000000
+  minAge: 0000000000000000000000000000000000000000000000000000000000000000
+  maxAge: 0000000000000000000000000000000000000000000000000000000000000000

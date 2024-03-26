@@ -198,6 +198,15 @@ public class NPCGenerator : MonoBehaviour
                 }else{
                     ageScale = 1.0f;
                 }
+                float[] personalities = new float[5];
+                for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+                    personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+                }
+                meopology.openness = personalities[0];
+                meopology.agreeableness = personalities[1];
+                meopology.conscientiousness = personalities[2];
+                meopology.extraversion = personalities[3];
+                meopology.neuroticism = personalities[4];
                 createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
                 createdMeoples++;
             }
@@ -249,6 +258,15 @@ public class NPCGenerator : MonoBehaviour
                     }else{
                         ageScale = 1.0f;
                     }
+                    float[] personalities = new float[5];
+                    for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+                        personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+                    }
+                    meopology.openness = personalities[0];
+                    meopology.agreeableness = personalities[1];
+                    meopology.conscientiousness = personalities[2];
+                    meopology.extraversion = personalities[3];
+                    meopology.neuroticism = personalities[4];
                     createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
                     createdMeoples++;
                     int numKids = Random.Range(0, maxKids);
@@ -293,6 +311,15 @@ public class NPCGenerator : MonoBehaviour
                         }
                         createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
                         createdMeoples++;
+                        personalities = new float[5];
+                        for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+                            personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+                        }
+                        meopology.openness = personalities[0];
+                        meopology.agreeableness = personalities[1];
+                        meopology.conscientiousness = personalities[2];
+                        meopology.extraversion = personalities[3];
+                        meopology.neuroticism = personalities[4];
                     }
                 }else if(children < kidChance){
                     int numKids = Random.Range(0, maxKids);
@@ -338,6 +365,15 @@ public class NPCGenerator : MonoBehaviour
                         }
                         createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
                         createdMeoples++;
+                        float[] personalities = new float[5];
+                        for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+                            personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+                        }
+                        meopology.openness = personalities[0];
+                        meopology.agreeableness = personalities[1];
+                        meopology.conscientiousness = personalities[2];
+                        meopology.extraversion = personalities[3];
+                        meopology.neuroticism = personalities[4];
                     }
                     int[] coupleGender = {0, 1};
                     int coupleAge = 3;
@@ -383,6 +419,15 @@ public class NPCGenerator : MonoBehaviour
                         }
                         createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
                         createdMeoples++;
+                        float[] personalities = new float[5];
+                        for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+                            personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+                        }
+                        meopology.openness = personalities[0];
+                        meopology.agreeableness = personalities[1];
+                        meopology.conscientiousness = personalities[2];
+                        meopology.extraversion = personalities[3];
+                        meopology.neuroticism = personalities[4];
                     }
                 }else{
                     int coupleAge = Random.Range(3, 5);
@@ -429,24 +474,29 @@ public class NPCGenerator : MonoBehaviour
                         }
                         createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
                         createdMeoples++;
+                        float[] personalities = new float[5];
+                        for(int personalityLoop = 0; personalityLoop < personalities.Length; personalityLoop++){
+                            personalities[personalityLoop] = (float)Random.Range(0, 101) / 100;
+                        }
+                        meopology.openness = personalities[0];
+                        meopology.agreeableness = personalities[1];
+                        meopology.conscientiousness = personalities[2];
+                        meopology.extraversion = personalities[3];
+                        meopology.neuroticism = personalities[4];
                     }
                 }
             }
             x+=5;
         }
+        LoadFamily();
     }
-    private bool Contains(int a, int[] b)
-    {
-        for(int i = 0; i < b.Length; i++){
-            if(a == b[i]){
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-    for(int i = 0; i < meopleData.Length; i++){
-            GameObject createdMeople = Instantiate(meople, new Vector3(i, 0, 0), Quaternion.identity);
+    private void LoadFamily(){
+        MeopleData[] meopleData = CharacterCreatorSaver.LoadFamily();
+        Meople[] family = new Meople[meopleData.Length];
+        for (int i = 0; i < meopleData.Length; i++)
+        {
+            GameObject createdMeople = Instantiate(meoplePrefab, new Vector3(9, 0, i * 0.25f + 88), Quaternion.identity);
+            createdMeople.transform.Rotate(0, 270, 0);
             clothing meopleStats = createdMeople.GetComponent<clothing>();
             meopleStats.firstName = meopleData[i].GetFirstName();
             meopleStats.lastName = meopleData[i].GetLastName();
@@ -466,22 +516,43 @@ public class NPCGenerator : MonoBehaviour
             int botIndex = meopleData[i].GetBot()[0];
             int botTextureIndex = meopleData[i].GetBot()[1];
             meopleStats.bottoms[botIndex].SetActive(true);
-            meopleStats.bottoms[botIndex].GetComponent<Renderer>().materials[0].mainTexture = meopleStats.hairTextures[botIndex][botTextureIndex];
+            meopleStats.bottoms[botIndex].GetComponent<Renderer>().materials[0].mainTexture = meopleStats.bottomTextures[botIndex][botTextureIndex];
             int shoeIndex = meopleData[i].GetShoe()[0];
             int shoeTextureIndex = meopleData[i].GetShoe()[1];
             meopleStats.shoes[shoeIndex].SetActive(true);
-            meopleStats.shoes[shoeIndex].GetComponent<Renderer>().materials[0].mainTexture = meopleStats.hairTextures[shoeIndex][shoeTextureIndex];
+            meopleStats.shoes[shoeIndex].GetComponent<Renderer>().materials[0].mainTexture = meopleStats.shoeTextures[shoeIndex][shoeTextureIndex];
             meopleStats.weight = meopleData[i].GetWeight();
             float ageScale;
             float characterScale = meopleStats.weight * 0.008f - 0.2f;
-            if(meopleStats.age == 0){
+            if (meopleStats.age == 0)
+            {
                 ageScale = 0.4f;
-            }else if(meopleStats.age == 1){
+            }
+            else if (meopleStats.age == 1)
+            {
                 ageScale = 0.6f;
-            }else if(meopleStats.age == 2){
+            }
+            else if (meopleStats.age == 2)
+            {
                 ageScale = 0.8f;
-            }else{
+            }
+            else
+            {
                 ageScale = 1.0f;
             }
-            createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);*/
+            createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
+            family[i] = createdMeople.GetComponent<Meople>();
+        }
+        GameMaster.family = family;
+        GameMaster.selectedMeople = family[0];
+    }
+    private bool Contains(int a, int[] b)
+    {
+        for(int i = 0; i < b.Length; i++){
+            if(a == b[i]){
+                return true;
+            }
+        }
+        return false;
+    }
 }

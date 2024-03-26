@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class Food : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    private int quality;
+    private float freshness;
+    private float initFreshnessHours = 9;
+    private TimeManager timeManager;
+    void Start(){
+        timeManager = GameObject.FindAnyObjectByType<TimeManager>();
+        freshness = timeManager.GetSecondsPerHour() * initFreshnessHours;
+        StartCoroutine(RotTheFood());
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+    IEnumerator RotTheFood(){
+        while(true){
+            yield return new WaitForSeconds(1);
+            freshness--;
+        }
     }
 }

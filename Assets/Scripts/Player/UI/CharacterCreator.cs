@@ -10,6 +10,11 @@ public class CharacterCreator : MonoBehaviour
     [SerializeField] GameObject clothingPanel;
     [SerializeField] GameObject areYouSurePanel;
     [SerializeField] Slider weightSlider;
+    [SerializeField] Slider opennessSlider;
+    [SerializeField] Slider agreeablenessSlider;
+    [SerializeField] Slider conscientiousnessSlider;
+    [SerializeField] Slider extraversionSlider;
+    [SerializeField] Slider neuroticismSlider;
     [SerializeField] TMP_Dropdown jacketDropdown;
     [SerializeField] TMP_Dropdown TShirtDropdown;
     [SerializeField] TMP_Dropdown ShirtDropdown;
@@ -54,7 +59,13 @@ public class CharacterCreator : MonoBehaviour
     private int age;
     private int curSim;
     private int state;
+    public float openness;
+    public float agreeableness;
+    public float extraversion;
+    public float conscientiousness;
+    public float neuroticism;
     private bool manualNameChange;
+    private bool loadingCharacterPersonality;
     void Start()
     {
         curSim = 0;
@@ -64,6 +75,7 @@ public class CharacterCreator : MonoBehaviour
         skinButtons[3] = whiteBrownButton.transform.Find("Selected").gameObject;
         skinButtons[4] = whiteGreenButton.transform.Find("Selected").gameObject;
         manualNameChange = true;
+        loadingCharacterPersonality = false;
         InitializeCharacter();
     }
     void InitializeCharacter()
@@ -80,15 +92,6 @@ public class CharacterCreator : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            touchStart = Input.mousePosition;
-            Debug.Log("touch Start initialized");
-        }
-        if (Input.GetMouseButton(0))
-        {
-            GetWorldPosition(touchStart);
-        }
         if (CanPlayGame())
         {
             doneButton.interactable = true;
@@ -113,28 +116,6 @@ public class CharacterCreator : MonoBehaviour
             }
         }
         return true;
-    }
-    private Vector3 GetWorldPosition(Vector3 start)
-    {
-        Ray mousePos = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(mousePos, out hit))
-        {
-            GameObject hitObject = hit.collider.gameObject;
-            if (hitObject.name == "Character(Clone)")
-            {
-                Debug.Log("Hit character");
-                if ((start - mousePos.GetPoint(5)).y > 0)
-                {
-                    meoples[curSim].transform.Rotate(0, Time.deltaTime * 60f, 0);
-                }
-                else if ((start - mousePos.GetPoint(5)).y < 0)
-                {
-                    meoples[curSim].transform.Rotate(0, Time.deltaTime * -60f, 0);
-                }
-            }
-        }
-        return mousePos.GetPoint(5);
     }
     public void openMeopologyPanel()
     {
@@ -178,6 +159,20 @@ public class CharacterCreator : MonoBehaviour
         }
         meoples[curSim].transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
         characterClothing.weight = weight;
+    }
+    public void ChangePersonality(){
+        if(!loadingCharacterPersonality){
+            characterClothing.openness = opennessSlider.value;
+            characterClothing.agreeableness = agreeablenessSlider.value;
+            characterClothing.conscientiousness = conscientiousnessSlider.value;
+            characterClothing.extraversion = extraversionSlider.value;
+            characterClothing.neuroticism = neuroticismSlider.value;
+            openness = opennessSlider.value;
+            agreeableness = agreeablenessSlider.value;
+            conscientiousness = conscientiousnessSlider.value;
+            extraversion = extraversionSlider.value;
+            neuroticism = neuroticismSlider.value;
+        }
     }
     public void AssignJacket()
     {
@@ -868,7 +863,13 @@ public class CharacterCreator : MonoBehaviour
             ageScale = 1.0f;
         }
         meoples[curSim].transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
-
+        loadingCharacterPersonality = true;
+        opennessSlider.value = characterClothing.openness;
+        agreeablenessSlider.value = characterClothing.agreeableness;
+        conscientiousnessSlider.value = characterClothing.conscientiousness;
+        extraversionSlider.value = characterClothing.extraversion;
+        neuroticismSlider.value = characterClothing.neuroticism;
+        loadingCharacterPersonality = false;
     }
     private void SaveFamily()
     {
@@ -876,9 +877,8 @@ public class CharacterCreator : MonoBehaviour
     }
     private void GenerateCharacter()
     {
-        Debug.Log("Generating Character");
         characterClothing.GenerateRandomCharacter(jacketDropdown, ShirtDropdown, TShirtDropdown, SweaterDropdown, TanktopDropdown,
         shortsDropdown, pantsDropdown, sneakersDropdown, flippersDropdown, bootsDropdown, hairDropdown, skinButtons, maleButton,
-        femaleButton);
+        femaleButton, opennessSlider, agreeablenessSlider, conscientiousnessSlider, extraversionSlider, neuroticismSlider);
     }
 }

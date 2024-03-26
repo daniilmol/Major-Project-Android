@@ -13,6 +13,7 @@ public class MeopleData
     private int[] topData;
     private int[] botData;
     private int[] shoeData;
+    private float[] personalityData;
     private float weight;
     public MeopleData(Meople m){
         firstName = m.GetFirstName();
@@ -25,6 +26,7 @@ public class MeopleData
         botData = m.GetBot();
         shoeData = m.GetShoe();
         weight = m.GetWeight();
+        personalityData = m.GetPersonality();
     }
     public string GetFirstName(){
         return firstName;
@@ -55,5 +57,8 @@ public class MeopleData
     }
     public float GetWeight(){
         return weight;
+    }
+    public float[] GetPersonality(){
+        return personalityData;
     }
 }

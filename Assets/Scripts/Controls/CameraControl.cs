@@ -45,7 +45,7 @@ public class CameraControl : MonoBehaviour
         if (!moving) return;
         Vector2 pos = inputManager.PrimaryPosition();
         Vector2 diff = pos - startPosition;
-        Vector3 moveVector = new Vector3(diff.x, 0, diff.y) * speed;
+        Vector3 moveVector = new Vector3(-diff.y, 0, diff.x) * speed;
         mainCamera.transform.position = camStartPos - moveVector;
     }
 

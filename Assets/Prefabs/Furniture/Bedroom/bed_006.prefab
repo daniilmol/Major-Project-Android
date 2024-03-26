@@ -136,6 +136,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ac4cbffe509e9514b9e33019d78ac325, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3128177740897884406}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ac4cbffe509e9514b9e33019d78ac325, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 146286968071689540}
   m_SourcePrefab: {fileID: 100100000, guid: ac4cbffe509e9514b9e33019d78ac325, type: 3}
 --- !u!1 &1296201027956753150 stripped
 GameObject:
@@ -164,6 +167,33 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3151561135424200435, guid: ac4cbffe509e9514b9e33019d78ac325, type: 3}
+--- !u!114 &146286968071689540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296201027956753150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b89394f3582c96349a9989c6c6d40d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  price: 900
+  quality: 3
+  isSurface: 0
+  canGetDirty: 0
+  upgradeable: 0
+  canBreak: 0
+  decoFactor: 0
+  interactionNames:
+  - Sleep
+  - Nap
+  - Lie Down
+  needIndices: 0000000000000000ffffffff
+  minAge: 010000000100000001000000
+  maxAge: 040000000400000004000000
+  availableSlots: 0000
 --- !u!4 &1924962677636700228 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ac4cbffe509e9514b9e33019d78ac325, type: 3}
