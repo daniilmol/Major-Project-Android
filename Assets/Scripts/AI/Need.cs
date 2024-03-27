@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
 
-public class Need 
+public abstract class Need 
 {
     protected float amount;
     protected float drainRate;
     protected float baseDrainRate;
     protected float replenishRate;
     protected bool repleneshing = false;
+    public float DrainRate => drainRate;
+    public float ReplenishRate => replenishRate;
     public Need(float drainRate, float replenishRate){
         this.drainRate = drainRate;
         this.replenishRate = replenishRate;

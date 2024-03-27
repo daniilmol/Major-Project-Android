@@ -18,22 +18,18 @@ public class InteractionZone : MonoBehaviour
     }
     public void Use(bool done, Meople meople, bool recursive){
         int recursiveTemp = occupiers - 1;
-        if(done && occupiers < maxOccupancy){
+        print(occupiers + " " + maxOccupancy);
+        if(done && occupiers < maxOccupancy && !IsTenant(meople)){
             occupiers++;
             tenants.Add(meople);
+            print("ADDING TENANT " + meople.GetFirstName());
         }else if(!done && !recursive){
             occupiers--;
+            print("REMOVING TENANT");
             tenants.Remove(meople);
         }else if(!done && recursive){
             tenants.Remove(meople);
             occupiers = recursiveTemp;
-        }
-        if(occupiers > maxOccupancy && !recursive){
-            //occupiers = maxOccupancy;
-            int x = occupiers - maxOccupancy;
-            for(int i = 0; i < x; i++){
-                Use(false, tenants[occupiers], true);
-            }
         }
         if(occupiers < 0 && !recursive){
             occupiers = 0;
@@ -48,6 +44,14 @@ public class InteractionZone : MonoBehaviour
     private void OnTriggerStay(Collider other) {
         if(other.GetComponent<Meople>() != null && other.GetComponent<Meople>().GetTargetCollider() == GetComponent<BoxCollider>()){
             other.GetComponent<Meople>().WithinRange(other.GetComponent<Meople>().GetFirstName());
+        }
+    }
+    void Update(){
+        if(occupiers > maxOccupancy){
+            int x = occupiers - maxOccupancy;
+            for(int i = x; i > 0; i--){
+                tenants.RemoveAt(i);
+            }
         }
     }
 }

@@ -57,30 +57,34 @@ public class Meople : MonoBehaviour
         }
         if(actionQueue.Count > 0 && !interacting){
             Vector3 interactionZone = GetAvailableInteractionZone(actionQueue[0].GetFurniture());
-            if((interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null) || (targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange)){
+            if((interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null) || targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange && !actionQueue[0].GetFurniture().CoroRunning()){
                 //print(interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null);
                 //print(targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange);
                 //print(targetCollider == null);
+                print("DEQUING IN UPDATE " + GetFirstName());
                 Dequeue();
                 return;
             }
             if(interactionZone != Vector3.zero)
                 agent.SetDestination(interactionZone);
-            if(withinInteractionRange){
+            if(withinInteractionRange && !targetCollider.GetComponent<InteractionZone>().IsFull()){
                 agent.ResetPath();
                 interacting = true;
+                transform.LookAt(actionQueue[0].GetFurniture().transform);
                 actionQueue[0].GetFurniture().Interact(actionQueue[0].GetIndex(), this);
+                print(GetFirstName() + " NOW INTERACTING...");
+            }else if(!withinInteractionRange && targetCollider.GetComponent<InteractionZone>().IsFull() && !interacting){
+                print("DEQUINGN AT THE BOTTOM" + GetFirstName());
+                Dequeue();
             }
         }
     }
     private void CheckIfEating(){
         if(actionQueue.Count > 0 && interacting && actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex() == 1){
             needs[3].SetDrainAmount(0.25f);
-            print("EATING");
             eating = true;
         }else if(!needs[3].Repleneshing()){
             needs[3].StopRepleneshing();
-            print("NOT EATING");
             eating = false;
         }
     }
@@ -102,9 +106,8 @@ public class Meople : MonoBehaviour
     }
     public void WithinRange(String n){
         if(!targetCollider.GetComponent<InteractionZone>().IsFull()){
-            if(!withinInteractionRange)
-                targetCollider.GetComponent<InteractionZone>().Use(true, this, false);
             withinInteractionRange = true;
+            targetCollider.GetComponent<InteractionZone>().Use(true, this, false);
         }
     }
     private Vector3 GetAvailableInteractionZone(Furniture furniture){
@@ -117,24 +120,38 @@ public class Meople : MonoBehaviour
         return Vector3.zero;
     }
     public void Dequeue(){
-        if(targetCollider != null){
-            targetCollider.GetComponent<InteractionZone>().Use(false, this, false);
-        }
-        targetCollider = null;
         if(actionQueue.Count > 0){
-            actionQueue.RemoveAt(0);
-        }
-        interacting = false;
-        withinInteractionRange = false;
-        if(GameMaster.selectedMeople == this && actionQueueButtons.Count > 0){
-            Destroy(actionQueueButtons[0]);
-            actionQueueButtons.RemoveAt(0);
-            RepositionQueueButtons();
+            int needIndex = actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex();
+            if(actionQueue.Count > 0){
+                actionQueue[0].GetFurniture().StopAllCoroutines();
+                actionQueue[0].GetFurniture().NotRunning();
+                actionQueue.RemoveAt(0);
+            }
+            if(interacting)
+                targetCollider.GetComponent<InteractionZone>().Use(false, this, false);
+            targetCollider = null;
+            ResetDestination();
+            brain.Privacy(false);
+            brain.Busy(false);
+            withinInteractionRange = false;
+            if(needIndex != -1){
+                needs[needIndex].StopRepleneshing();
+            }else{
+                int replenishingNeed = FindRepleneshingNeed();
+            }
+            if(GameMaster.selectedMeople == this && actionQueueButtons.Count > 0){
+                Destroy(actionQueueButtons[0]);
+                actionQueueButtons.RemoveAt(0);
+                RepositionQueueButtons();
+            }
+            interacting = false;
         }
     }
     public void DequeueAt(int index){
         if(index == 0){
             actionQueue[index].GetFurniture().StopAllCoroutines();
+                        actionQueue[0].GetFurniture().NotRunning();
+
             targetCollider.GetComponent<InteractionZone>().Use(false, this, false);
             targetCollider = null;
             brain.Privacy(false);
@@ -145,7 +162,6 @@ public class Meople : MonoBehaviour
                 int replenishingNeed = FindRepleneshingNeed();
             }
             ResetDestination();
-            interacting = false;
             withinInteractionRange = false;
         }
         actionQueue.RemoveAt(index);
@@ -154,6 +170,7 @@ public class Meople : MonoBehaviour
             actionQueueButtons.RemoveAt(index);
             RepositionQueueButtons();
         }
+        interacting = false;
     }
     private int FindRepleneshingNeed(){
         for(int i = 0; i < needs.Length; i++){
@@ -236,7 +253,7 @@ public class Meople : MonoBehaviour
                 if(meopleAction.GetFurniture() is Bed){
                     NoNeedToSleep();
                 }
-                if(!interacting)
+                if(!interacting && actionQueue.Count < 1)
                     Enqueue(meopleAction);
             }
             yield return new WaitForSeconds(5f);

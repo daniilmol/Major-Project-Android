@@ -23,6 +23,11 @@ public class Furniture : MonoBehaviour
         interactionZones = new GameObject[transform.childCount];
         SetAllZones();
     }
+    void Update(){
+        if(this is Computer){
+            print(interactionZones[0].GetComponent<InteractionZone>().IsFull());
+        }
+    }
     private void SetAllZones(){
         int i = 0;
         foreach(Transform child in transform){
@@ -31,6 +36,14 @@ public class Furniture : MonoBehaviour
     }
     public List<Interaction> GetInteractions(){
         return interactions;
+    }
+    public bool IsFull(){
+        for(int i = 0; i < interactionZones.Length; i++){
+            if(!interactionZones[i].GetComponent<InteractionZone>().IsFull()){
+                return false;
+            }
+        }
+        return true;
     }
     public virtual void Interact(int index, Meople meople){
 
@@ -56,12 +69,19 @@ public class Furniture : MonoBehaviour
     protected float GetPrice(){
         return price;
     }
+    private bool coroRunning = false;
+    public bool CoroRunning(){
+        return coroRunning;
+    }
+    public void NotRunning(){
+        coroRunning = false;
+    }
     protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
         int time = 0;
+        coroRunning = true;
         if(interactionTime == -1){
             while(meople.GetNeeds()[needIndex] < 100){
                 meople.GetActualNeeds()[needIndex].Replenish();
-                //print(meople.GetFirstName() + " REPLENESHING" + needIndex);
                 yield return null;
             }
         }else{
@@ -71,10 +91,12 @@ public class Furniture : MonoBehaviour
                 time++;
             }
         }
+        coroRunning = false;
         meople.Privacy(false);
         meople.Busy(false);
         meople.GetActualNeeds()[needIndex].StopRepleneshing();
         meople.ResetDestination();
+        print("DEQUEUED IN FURNITURE");
         meople.Dequeue();
     }
     public void Clean(int index, Meople meople){

@@ -17,7 +17,6 @@ public class Brain
         int highestScore = -100;
         ArrayList tieAds = new ArrayList();
         foreach(Advertisement ad in advertisements){
-            Debug.Log(ad.GetInteraction().GetName());
             bool available = true;
             int childCount = ad.GetInteraction().GetInteractableObject().transform.childCount;
             int full = 0;
