@@ -18,7 +18,6 @@ public class InteractionZone : MonoBehaviour
     }
     public void Use(bool done, Meople meople, bool recursive){
         int recursiveTemp = occupiers - 1;
-        print(occupiers + " " + maxOccupancy);
         if(done && occupiers < maxOccupancy && !IsTenant(meople)){
             occupiers++;
             tenants.Add(meople);
