@@ -11,8 +11,6 @@ public class Furniture : MonoBehaviour
     [SerializeField] bool upgradeable;
     [SerializeField] bool canBreak;
     [SerializeField] float decoFactor;
-    private Advertiser advertiser;
-    private Advertisement advertisement;
     private bool isDirty;
     protected int maxUseForDirty;
     protected int used;
@@ -24,8 +22,8 @@ public class Furniture : MonoBehaviour
         SetAllZones();
     }
     void Update(){
-        if(this is Computer){
-            print(interactionZones[0].GetComponent<InteractionZone>().IsFull());
+        if(this is Bed){
+            print(interactionZones[0].GetComponent<InteractionZone>().IsFull() + " " + interactionZones[1].GetComponent<InteractionZone>().IsFull());
         }
     }
     private void SetAllZones(){
@@ -79,25 +77,38 @@ public class Furniture : MonoBehaviour
     protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
         int time = 0;
         coroRunning = true;
+        bool breaking = false;
         if(interactionTime == -1){
             while(meople.GetNeeds()[needIndex] < 100){
+                if(!meople.IsBusy()){
+                    breaking = true;
+                    break;
+                }
                 meople.GetActualNeeds()[needIndex].Replenish();
                 yield return null;
             }
         }else{
             while(time < interactionTime){
+                if(meople.GetNeeds()[needIndex] > 99 && needIndex != 2 && needIndex != 5){
+                    if(!meople.IsBusy()){
+                        breaking = true;
+                        break;
+                    }
+                    break;
+                }
                 meople.GetActualNeeds()[needIndex].Replenish();
                 yield return new WaitForSeconds(1);
                 time++;
             }
         }
-        coroRunning = false;
-        meople.Privacy(false);
-        meople.Busy(false);
-        meople.GetActualNeeds()[needIndex].StopRepleneshing();
-        meople.ResetDestination();
-        print("DEQUEUED IN FURNITURE");
-        meople.Dequeue();
+        if(!breaking){
+            meople.Privacy(false);
+            meople.Busy(false);
+            meople.GetActualNeeds()[needIndex].StopRepleneshing();
+            meople.ResetDestination();
+            print(meople.GetFirstName() + "DEQUEUED IN FURNITURE");
+            meople.Dequeue();
+        }
     }
     public void Clean(int index, Meople meople){
 

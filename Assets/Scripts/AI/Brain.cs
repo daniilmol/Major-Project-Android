@@ -9,7 +9,7 @@ public class Brain
     private bool isBusy = false;
     private bool requiresPrivacy = false;
     
-    public MeopleAction ProcessAdvertisements(ArrayList advertisements, Need[] needs){
+    public MeopleAction ProcessAdvertisements(ArrayList advertisements, Need[] needs, bool wokenUp){
         MeopleAction action;
         int interactionIndex = 0;
         Furniture furniture = null;
@@ -19,11 +19,15 @@ public class Brain
         foreach(Advertisement ad in advertisements){
             bool available = true;
             int childCount = ad.GetInteraction().GetInteractableObject().transform.childCount;
+            int[] fullCounter = new int[childCount];
             int full = 0;
+            int i = 0;
             foreach(Transform zone in ad.GetInteraction().GetInteractableObject().transform){
                 if(zone.GetComponent<InteractionZone>().IsFull()){
+                    fullCounter[i] = 1;
                     full++;
                 }
+                i++;
             }
             if(full >= childCount){
                 available = false;
@@ -55,7 +59,7 @@ public class Brain
             return action;
         }
         if(furniture is Bed){
-            if(TimeManager.currentTime < 300 || TimeManager.currentTime > 1200){
+            if(TimeManager.currentTime < 300 || TimeManager.currentTime > 1200 || wokenUp){
                 interactionIndex = 0;
             }else if(TimeManager.currentTime >= 300 || TimeManager.currentTime <= 1200){
                 interactionIndex = 1;

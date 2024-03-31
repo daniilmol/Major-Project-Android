@@ -2,17 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillDecorator : MonoBehaviour
+public class SkillDecorator : NeedDecorator
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    private float hungerLevel;
+    public SkillDecorator(Need need, float hungerLevel) : base(need) {
+        this.hungerLevel = hungerLevel;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -44,8 +44,8 @@ public class Bed : Furniture
         StartCoroutine(ReplenishNeeds(meople, index, -1));
     }
     public void Nap(int index, Meople meople){
-        int minimumNapTime = 45;
-        int maximumNapTime = 90;
+        int minimumNapTime = 30;
+        int maximumNapTime = 60;
         int napTime = Random.Range(minimumNapTime, maximumNapTime);
         StartCoroutine(ReplenishNeeds(meople, index, napTime));
     }

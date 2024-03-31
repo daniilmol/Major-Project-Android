@@ -47,7 +47,6 @@ public class InteractionPanelCreator : MonoBehaviour
             GameObject interactionButton = Instantiate(button, panel.transform);
             TextMeshProUGUI buttonText = interactionButton.GetComponentInChildren<TextMeshProUGUI>();
             buttonText.SetText(interactions[i].GetName());
-            print(buttonText.text);
             interactionButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, y2Button);
             interactionButton.GetComponent<RectTransform>().sizeDelta = new Vector2(250, 50);
             interactionButton.GetComponent<Button>().onClick.AddListener(delegate { Interact(index, furniture); }); 

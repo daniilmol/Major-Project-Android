@@ -21,6 +21,7 @@ public abstract class Need
     public void SetDrainAmount(float amount){
         drainRate = amount;
     }
+
     public void Drain(){
         this.amount -= drainRate;
         if(this.amount < -100){

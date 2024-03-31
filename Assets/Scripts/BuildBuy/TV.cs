@@ -20,7 +20,7 @@ public class TV : Furniture
     }
     public void WatchTV(int index, Meople meople){
         int minimumWatchTime = 30;
-        int maximumWatchTime = 120;
+        int maximumWatchTime = 60;
         int watchTime = Random.Range(minimumWatchTime, maximumWatchTime);
         InteractionZone zone = transform.GetChild(0).GetComponent<InteractionZone>();
         StartCoroutine(ReplenishNeeds(meople, index, watchTime));

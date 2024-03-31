@@ -22,10 +22,8 @@ public class InteractionZone : MonoBehaviour
         if(done && occupiers < maxOccupancy && !IsTenant(meople)){
             occupiers++;
             tenants.Add(meople);
-            print("ADDING TENANT " + meople.GetFirstName());
         }else if(!done && !recursive){
             occupiers--;
-            print("REMOVING TENANT");
             tenants.Remove(meople);
         }else if(!done && recursive){
             tenants.Remove(meople);
@@ -34,6 +32,9 @@ public class InteractionZone : MonoBehaviour
         if(occupiers < 0 && !recursive){
             occupiers = 0;
         }
+    }
+    public int GetOccupiers(){
+        return occupiers;
     }
     public bool IsTenant(Meople meople){
         return tenants.Contains(meople);

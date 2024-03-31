@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.TerrainTools;
 
 public class TimeManager : MonoBehaviour
 {
@@ -31,10 +32,10 @@ public class TimeManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        amountToRotate = 180 / (12 * secondsForHour);
+        //amountToRotate = 180 / (12 * secondsForHour);
         rot = Vector3.zero;
         hour = 6;
-        actualHour = 22;
+        actualHour = hour;
         minute = 0;
         timeLabels[0] = "AM";
         timeLabels[1] = "PM";
@@ -46,7 +47,7 @@ public class TimeManager : MonoBehaviour
     void Update()
     {
         time += Time.deltaTime * (60 / secondsForHour);
-        rot.x = Time.deltaTime * amountToRotate;
+        //rot.x = Time.deltaTime * amountToRotate;
         sun.transform.Rotate(rot, Space.Self);
         minute = (int)time;
         currentTime = actualHour * 60 + minute;

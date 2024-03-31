@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CharacterCreator : MonoBehaviour
@@ -100,6 +101,7 @@ public class CharacterCreator : MonoBehaviour
         {
             doneButton.interactable = false;
         }
+        
     }
     private bool CanPlayGame()
     {
@@ -595,6 +597,7 @@ public class CharacterCreator : MonoBehaviour
     public void PlayGame()
     {
         SaveFamily();
+        SceneManager.LoadScene(1);
         MeopleData[] meopleData = CharacterCreatorSaver.LoadFamily();
         for (int i = 0; i < meopleData.Length; i++)
         {

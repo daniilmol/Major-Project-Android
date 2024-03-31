@@ -6,12 +6,24 @@ using UnityEngine.AI;
 public class Test_script : MonoBehaviour
 {
     
-
-
-    NavMeshAgent agent;
-   public Animator ani;
-   public GameObject aim_point;
-
+    private NavMeshAgent agent;
+    public Animator ani;
+    public float walk_speed;
+    public float run_speed;
+    void Start(){
+        agent = GetComponent<NavMeshAgent>();
+    }
+    void Update(){
+        if(agent.remainingDistance > 0.1f){
+            agent.speed = walk_speed;
+            ani.SetInteger("arms", 1);
+            ani.SetInteger("legs", 1);
+        }else{
+            ani.SetInteger("arms", 5);
+            ani.SetInteger("legs", 5);
+        }
+    }
+/**
     public bool execute_walking;
     public bool execute_sitting;
     public bool execute_stealing;
@@ -382,7 +394,7 @@ public class Test_script : MonoBehaviour
     public List<GameObject> Sitting_points = new List<GameObject>();
     public List<GameObject> Stealing_points = new List<GameObject>();
     public List<GameObject> pick_up_points = new List<GameObject>();
-
+*/
   
 
 

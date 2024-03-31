@@ -20,7 +20,7 @@ public class Computer : Furniture
     }
     public void PlayGames(int index, Meople meople){
         int minimumPlayTime = 30;
-        int maximumPlayTime = 120;
+        int maximumPlayTime = 60;
         int playTime = Random.Range(minimumPlayTime, maximumPlayTime);
         StartCoroutine(ReplenishNeeds(meople, index, playTime));
     }
