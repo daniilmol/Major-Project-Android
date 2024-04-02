@@ -43,7 +43,7 @@ public class InteractionZone : MonoBehaviour
     }
     private void OnTriggerStay(Collider other) {
         if(other.GetComponent<Meople>() != null && other.GetComponent<Meople>().GetTargetCollider() == GetComponent<BoxCollider>()){
-            other.GetComponent<Meople>().WithinRange(other.GetComponent<Meople>().GetFirstName());
+            other.GetComponent<Meople>().WithinRange();
         }
     }
     void Update(){

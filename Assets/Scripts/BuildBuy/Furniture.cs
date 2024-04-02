@@ -16,10 +16,20 @@ public class Furniture : MonoBehaviour
     protected int used;
     private List<Interaction> interactions = new List<Interaction>();
     private GameObject[] interactionZones;
+    private float boredScore;
     void Start(){
         maxUseForDirty = 5;
+        boredScore = 0;
         interactionZones = new GameObject[transform.childCount];
         SetAllZones();
+    }
+    void Update(){
+        if(boredScore != 0){
+            boredScore -= Time.deltaTime;
+            if(boredScore < 0){
+                boredScore = 0;
+            }
+        }
     }
     private void SetAllZones(){
         int i = 0;
@@ -29,6 +39,9 @@ public class Furniture : MonoBehaviour
     }
     public List<Interaction> GetInteractions(){
         return interactions;
+    }
+    public float GetBoredScore(){
+        return boredScore;
     }
     public bool IsFull(){
         for(int i = 0; i < interactionZones.Length; i++){
@@ -41,6 +54,11 @@ public class Furniture : MonoBehaviour
     public virtual void Interact(int index, Meople meople){
 
     }
+
+    public virtual void DiminishReturn(){
+
+    }
+
     protected void SetData(Dictionary<string, int> interactions, int[] minAge, int[] maxAge){
         int i = 0;
         foreach(KeyValuePair<string, int> entry in interactions){
@@ -70,7 +88,6 @@ public class Furniture : MonoBehaviour
         coroRunning = false;
     }
     protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
-        print(meople.GetFirstName() + " is now interacting with " + this + " repleneshing " + needIndex + " for " + interactionTime + " seconds");
         int time = 0;
         coroRunning = true;
         bool breaking = false;
@@ -78,7 +95,6 @@ public class Furniture : MonoBehaviour
             while(meople.GetNeeds()[needIndex] < 100){
                 if(!meople.IsBusy()){
                     breaking = true;
-                    print("broke");
                     break;
                 }
                 meople.GetActualNeeds()[needIndex].Replenish();
@@ -103,7 +119,6 @@ public class Furniture : MonoBehaviour
             meople.Busy(false);
             meople.GetActualNeeds()[needIndex].StopRepleneshing();
             meople.ResetDestination();
-            print(meople.GetFirstName() + "DEQUEUED IN FURNITURE");
         }
         meople.Dequeue();
     }

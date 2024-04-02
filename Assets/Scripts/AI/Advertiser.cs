@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Advertiser : MonoBehaviour
@@ -8,15 +9,27 @@ public class Advertiser : MonoBehaviour
     private float timeBetweenAdvertisements;
     private Meople[] meoples;
     private List<Advertisement> advertisements = new List<Advertisement>();
+    private bool meoplesAdded;
 
     void Start(){
         coroutineFinished = true;
+        meoplesAdded = false;
     }
 
     void Update(){
         if(coroutineFinished){
             StartCoroutine(Advertise());
         }
+        if(!meoplesAdded){
+            AddMeoples();
+        }
+    }
+    private void AddMeoples(){
+        meoples = GameObject.FindObjectsOfType<Meople>();
+        for(int i = 0; i < meoples.Length; i++){
+            Interaction socialInteraction = new Interaction("Start Conversation", 5, 0, 4, -1, meoples[i].gameObject);
+        }
+        meoplesAdded = true;
     }
     public void AddAd(Advertisement ad){
         advertisements.Add(ad);

@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -21,11 +20,10 @@ public class Meople : MonoBehaviour
     private BoxCollider targetCollider;
     [SerializeField] float[] needVals = {100, 100, 50, 100, 100, 100};
     private ArrayList advertisements = new ArrayList();
+    private List<Relationship> relationships = new List<Relationship>();
     private List<MeopleAction> actionQueue = new List<MeopleAction>();
-    private List<GameObject> actionQueueButtons = new List<GameObject>();
     [SerializeField] GameObject meople;
     [SerializeField] GameObject button;
-    private Image queuePanel;
     
     void Start(){
         meopleClothing = GetComponent<clothing>();
@@ -36,10 +34,6 @@ public class Meople : MonoBehaviour
         InitializeNeeds();
         StartCoroutine(Drain());
         StartCoroutine(ProcessAdvertisements());
-        GameObject p = GameObject.Find("ActionQueue");
-        if(p != null){
-            queuePanel = p.GetComponent<Image>();
-        }
     }
     void Update(){
         CheckForMoreImportantNeeds();
@@ -102,7 +96,7 @@ public class Meople : MonoBehaviour
     public BoxCollider GetTargetCollider(){
         return targetCollider;
     }
-    public void WithinRange(String n){
+    public void WithinRange(){
         if(!targetCollider.GetComponent<InteractionZone>().IsFull()){
             withinInteractionRange = true;
         }
@@ -116,9 +110,6 @@ public class Meople : MonoBehaviour
         foreach(Transform zone in furniture.transform){
             if(!zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider){
                 targetCollider = zone.GetComponent<BoxCollider>();
-                if(furniture is Bed){
-                    print("ZONE POSITION FOR BED IS: " + zone.position);
-                }
                 return zone.position;
             }
         }
@@ -198,6 +189,9 @@ public class Meople : MonoBehaviour
         }
         return -1;
     }
+    public Brain GetBrain(){
+        return brain;
+    }
     public void Enqueue(MeopleAction meopleAction){
         if(actionQueue.Count < 8){
             actionQueue.Add(meopleAction);
@@ -245,7 +239,6 @@ public class Meople : MonoBehaviour
                         trickToSleep[i].SetAmount(100);
                     }
                     meopleAction = brain.ProcessAdvertisements(advertisements, trickToSleep, true);
-                    print(GetFirstName() + " got tricked into sleeping");
                 }else{
                     meopleAction = brain.ProcessAdvertisements(advertisements, needs, false);
                 }
@@ -255,7 +248,8 @@ public class Meople : MonoBehaviour
                 if(!interacting && actionQueue.Count < 1)
                     Enqueue(meopleAction);
             }
-            yield return new WaitForSeconds(5f);
+            float AiDecisionMakingTimer = Random.Range(5, 15);
+            yield return new WaitForSeconds(AiDecisionMakingTimer);
         }
     }
 

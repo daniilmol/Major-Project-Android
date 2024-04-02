@@ -94,7 +94,11 @@ public class GameMaster : MonoBehaviour
             }
         }
         TextMeshProUGUI queueIndicator = queueButton.GetComponentInChildren<TextMeshProUGUI>();
-        queueIndicator.SetText(meopleAction.GetFurniture().GetInteractions()[meopleAction.GetIndex()].GetName());
+        if(meopleAction.GetFurniture() != null){
+            queueIndicator.SetText(meopleAction.GetFurniture().GetInteractions()[meopleAction.GetIndex()].GetName());
+        }else{
+            queueIndicator.SetText("Start Conversation");
+        }
         float yPosition = 0;
         yPosition = -buttonQueuesList[x].Count * 50;
         queueButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(50, yPosition);
@@ -125,7 +129,6 @@ public class GameMaster : MonoBehaviour
         }
     }
     public static void DequeueFromActionList(int x) {
-        print("Trying to delete index: " + x);
         selectedMeople.DequeueAt(x);
     }
     public void ChangeTime(int speed){
