@@ -48,7 +48,7 @@ public class Fridge : Furniture
         }
     }
     public void HaveSnack(int index, Meople meople){
-        StartCoroutine(ReplenishNeeds(meople, index, -1));
+        StartCoroutine(ReplenishNeeds(meople, index, 10));
     }
     public void HaveBreakfast(int index, Meople meople){
         StartCoroutine(ReplenishNeeds(meople, index, -1));

@@ -68,6 +68,7 @@ public class InteractionPanelCreator : MonoBehaviour
         Debug.Log("PLAYER HAS CHOSEN FURNITURE: " + furniture.name + " INDEX: " + x);
         MeopleAction meopleAction = new MeopleAction(furniture, x);
         GameMaster.selectedMeople.Enqueue(meopleAction);
+        GameMaster.selectedMeople.Busy(true);
         foreach(Transform child in panel.transform){
             Destroy(child.gameObject);
         }

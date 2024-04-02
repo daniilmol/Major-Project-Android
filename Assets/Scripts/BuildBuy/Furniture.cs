@@ -21,11 +21,6 @@ public class Furniture : MonoBehaviour
         interactionZones = new GameObject[transform.childCount];
         SetAllZones();
     }
-    void Update(){
-        if(this is Bed){
-            print(interactionZones[0].GetComponent<InteractionZone>().IsFull() + " " + interactionZones[1].GetComponent<InteractionZone>().IsFull());
-        }
-    }
     private void SetAllZones(){
         int i = 0;
         foreach(Transform child in transform){
@@ -75,6 +70,7 @@ public class Furniture : MonoBehaviour
         coroRunning = false;
     }
     protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
+        print(meople.GetFirstName() + " is now interacting with " + this + " repleneshing " + needIndex + " for " + interactionTime + " seconds");
         int time = 0;
         coroRunning = true;
         bool breaking = false;
@@ -82,6 +78,7 @@ public class Furniture : MonoBehaviour
             while(meople.GetNeeds()[needIndex] < 100){
                 if(!meople.IsBusy()){
                     breaking = true;
+                    print("broke");
                     break;
                 }
                 meople.GetActualNeeds()[needIndex].Replenish();
@@ -107,8 +104,8 @@ public class Furniture : MonoBehaviour
             meople.GetActualNeeds()[needIndex].StopRepleneshing();
             meople.ResetDestination();
             print(meople.GetFirstName() + "DEQUEUED IN FURNITURE");
-            meople.Dequeue();
         }
+        meople.Dequeue();
     }
     public void Clean(int index, Meople meople){
 

@@ -65,6 +65,7 @@ public class Meople : MonoBehaviour
                 agent.SetDestination(interactionZone);
             if(withinInteractionRange && !targetCollider.GetComponent<InteractionZone>().IsFull()){
                 targetCollider.GetComponent<InteractionZone>().Use(true, this, false);
+                Busy(true);
                 agent.ResetPath();
                 interacting = true;
                 Vector3 targetDirection = actionQueue[0].GetFurniture().transform.position - transform.position;
@@ -137,6 +138,7 @@ public class Meople : MonoBehaviour
                     actionQueue[0].GetFurniture().StopAllCoroutines();
                     actionQueue[0].GetFurniture().NotRunning();
                 }
+
                 actionQueue.RemoveAt(0);
             }
             if(interacting)
@@ -180,6 +182,8 @@ public class Meople : MonoBehaviour
                 needs[needIndex].StopRepleneshing();
             }else{
                 int replenishingNeed = FindRepleneshingNeed();
+                if(replenishingNeed != -1)
+                    needs[replenishingNeed].StopRepleneshing();
             }
             interacting = false;
         }

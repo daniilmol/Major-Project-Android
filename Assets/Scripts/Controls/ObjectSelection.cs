@@ -48,6 +48,7 @@ public class ObjectSelection : MonoBehaviour
             interactionPanelCreator.CreateButtons(interactions, furniture);
         }else if(floor){
             interactionMenu.SetActive(true);
+            //create conversation thingies
             Interaction interaction = new Interaction("Go Here", -1, 0, 4, 0, null);
             List<Interaction> interactions = new List<Interaction>();
             interactions.Add(interaction);
@@ -79,6 +80,8 @@ public class ObjectSelection : MonoBehaviour
                 if (selectedObject.GetComponent<Furniture>() != null)
                 {
                     OpenInteractionMenu(selectedObject.GetComponent<Furniture>(), false);
+                }else if(selectedObject.GetComponent<Meople>() != null && selectedObject.GetComponent<Meople>() != GameMaster.selectedMeople){
+                    OpenInteractionMenu(null, true);
                 }
                 if(LayerMask.LayerToName(selectedObject.layer) == "Floor"){
                     OpenInteractionMenu(null, true);
