@@ -14,6 +14,7 @@ public class Relationship
         RomancePartner
     }
     public enum RelationshipStatus{
+        Stranger,
         Father,
         Mother,
         Son,
@@ -31,6 +32,13 @@ public class Relationship
     private ValueStatus valueStatus;
     private RelationshipStatus relationshipStatus;
     private Meople meople;
+    public Relationship(float value, float romanceValue, ValueStatus valueStatus, RelationshipStatus relationshipStatus, Meople meople){
+        this.value = value;
+        this.romanceValue = romanceValue;
+        this.valueStatus = valueStatus;
+        this.relationshipStatus = relationshipStatus;
+        this.meople = meople;
+    }
 
     public void AffectRelationship(float value){
         this.value += value;

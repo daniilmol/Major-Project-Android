@@ -85,6 +85,21 @@ public class GameMaster : MonoBehaviour
             buttonQueuesList[index][i].GetComponent<Button>().onClick.AddListener(delegate { DequeueFromActionList(indexX); }); 
         }
     }
+    public static void RenameConversation(Meople a, Meople b, string ax, string bx){
+        int x = -1;
+        int y = -1;
+        for(int i = 0; i < family.Length; i++){
+            if(a == family[i]){
+                x = i;
+            }if(b == family[i]){
+                y = i;
+            }
+        }
+        if(buttonQueuesList[x].Count > 0 && a.FindRepleneshingNeed() == 5){
+            buttonQueuesList[x][0].GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = ax;
+            buttonQueuesList[y][0].GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = bx;
+        }
+    }
     public static void CreateActionQueueButton(MeopleAction meopleAction, Meople meople){
         GameObject queueButton = Instantiate(b, c.transform);
         int x = -1;

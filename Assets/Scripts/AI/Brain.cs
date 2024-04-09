@@ -107,7 +107,6 @@ public class Brain
             if(ad != null && ad.GetNeedIndex() == 5){
                 MeopleAction returnConvo = new MeopleAction(meople.GetComponent<Furniture>(), 0);
                 ad.GetInteraction().GetInteractableObject().GetComponent<Meople>().Enqueue(returnConvo);
-                Debug.Log("ENQUEUED");
             }
             return action;
         }
@@ -122,7 +121,6 @@ public class Brain
         if(action.GetFurniture().GetInteractions()[interactionIndex].GetNeedIndex() == 5){
             MeopleAction returnConvo = new MeopleAction(meople.GetComponent<Furniture>(), 0);
             furniture.GetComponent<Meople>().Enqueue(returnConvo);
-            Debug.Log("ENQUEUED AT BOTTOM");
         }
         return action;
     }
