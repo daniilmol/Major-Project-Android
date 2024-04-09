@@ -2,20 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Conversation
+public class Conversation : MonoBehaviour
 {
     private Relationship pairRelationship;
+    private Relationship pairRelationship2;
     private int minimumConversationTime;
     private int maximumConversationTime;
     private int conversationTime;
     private int pleasantness;
-    public Conversation(Relationship pairRelationship){
+    public Conversation(Relationship pairRelationship, Relationship pairRelationShip2, int minimumConversationTime, int maximumConversationTime){
         this.pairRelationship = pairRelationship;
+        this.pairRelationship2 = pairRelationShip2;
+        this.minimumConversationTime = minimumConversationTime;
+        this.maximumConversationTime = maximumConversationTime;
         conversationTime = Random.Range(minimumConversationTime, maximumConversationTime);
         InitializePleasantness();
     }
+    public void SetRelationships(Relationship a, Relationship b, int c, int d){
+        pairRelationship = a;
+        pairRelationship2 = b;
+        conversationTime = Random.Range(c, d);
+    }
+    public Relationship[] GetTwoParties(){
+        Relationship[] twoParties = {pairRelationship, pairRelationship2};
+        return twoParties;
+    }
     public int GetConversationTime(){
         return conversationTime;
+    }
+    public void SelectInteraction(){
+
     }
     private void InitializePleasantness(){
         switch(pairRelationship.GetValueStatus()){

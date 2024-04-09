@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Furniture : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class Furniture : MonoBehaviour
     [SerializeField] bool canBreak;
     [SerializeField] float decoFactor;
     private bool isDirty;
+    private int socialInteraction;
     protected int maxUseForDirty;
     protected int used;
     private List<Interaction> interactions = new List<Interaction>();
@@ -24,6 +26,19 @@ public class Furniture : MonoBehaviour
         SetAllZones();
     }
     void Update(){
+        if(GetComponent<Meople>() != null){
+            Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
+            int[] indicies = new int[conversations.Length];
+            for(int i = 0; i < indicies.Length; i++){
+                indicies[i] = -1;
+            }
+            for(int i = 0; i < conversations.Length; i++){
+                print(Int32.Parse(conversations[i].gameObject.name)); 
+                if(Int32.Parse(conversations[i].gameObject.name) < indicies.Length && ++indicies[Int32.Parse(conversations[i].gameObject.name)] > 1){
+                    Destroy(conversations[i]);
+                }
+            }
+        }
         if(boredScore != 0){
             boredScore -= Time.deltaTime;
             if(boredScore < 0){
@@ -87,31 +102,144 @@ public class Furniture : MonoBehaviour
     public void NotRunning(){
         coroRunning = false;
     }
-    protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
+    protected void ChangeSocialInteraction(int index){
+
+    }
+    protected IEnumerator ReplenishSocialNeeds(Meople meople, int needIndex){
         int time = 0;
+        int maxInteractionTime = 2;
+        int interactionTimer = 0;
         coroRunning = true;
         bool breaking = false;
-        if(interactionTime == -1){
-            while(meople.GetNeeds()[needIndex] < 100){
-                if(!meople.IsBusy()){
-                    breaking = true;
-                    break;
+        Conversation conversation;
+        if(needIndex == 5){
+            Meople interactedMeople = GetComponent<Meople>();
+            List<Relationship> relationships = meople.GetRelationships();
+            List<Relationship> relationshipsOfTarget = interactedMeople.GetRelationships();
+            Relationship relationship = null;
+            Relationship targetRelationship = null;
+            for(int i = 0; i < relationships.Count; i++){
+                if(relationships[i].GetMeople() == interactedMeople){
+                    relationship = relationships[i];
                 }
-                meople.GetActualNeeds()[needIndex].Replenish();
-                yield return null;
             }
-        }else{
-            while(time < interactionTime){
-                if(meople.GetNeeds()[needIndex] > 99 && needIndex != 2 && needIndex != 5){
-                    if(!meople.IsBusy()){
-                        breaking = true;
-                        break;
-                    }
-                    break;
+            for(int i = 0; i < relationshipsOfTarget.Count; i++){
+                if(relationshipsOfTarget[i].GetMeople() == meople){
+                    targetRelationship = relationshipsOfTarget[i];
+                }
+            }
+            Conversation conversationObject;
+            if(relationship == null){
+                Debug.Log("RELATIONSHIP IS NULL");
+                Relationship noLongerStrangers = new Relationship();
+                Relationship noLongerStrangers2 = new Relationship();
+                meople.AddRelationship(noLongerStrangers);
+                interactedMeople.AddRelationship(noLongerStrangers2);
+                Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
+                meople.SetConversationIndex(conversations.Length);
+                interactedMeople.SetConversationIndex(conversations.Length);
+                print("Setting convo index to " + conversations.Length);
+                if(conversations.Length > 0 && Int32.Parse(conversations[conversations.Length - 1].name) == conversations.Length - 1){
+                    conversationObject = conversations[conversations.Length - 1];
+                    meople.SetConversationIndex(conversations.Length - 1);
+                    interactedMeople.SetConversationIndex(conversations.Length - 1);
+                }else{
+                    conversationObject = Instantiate(meople.GetConversation());
+                    conversationObject.name = "" + meople.GetConversationIndex();
+                    conversationObject.SetRelationships(noLongerStrangers, noLongerStrangers2, 15, 30);
+                }
+            }else{
+                Debug.Log("RELATIONSHIP IS NOT NULL");
+                Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
+                meople.SetConversationIndex(conversations.Length);
+                interactedMeople.SetConversationIndex(conversations.Length);
+                if(conversations.Length > 0 && Int32.Parse(conversations[conversations.Length - 1].name) == conversations.Length - 1){
+                    conversationObject = conversations[conversations.Length - 1];
+                    meople.SetConversationIndex(conversations.Length - 1);
+                    interactedMeople.SetConversationIndex(conversations.Length - 1);
+                }else{
+                    conversationObject = Instantiate(meople.GetConversation());
+                    conversationObject.name = "" + meople.GetConversationIndex();
+                    conversationObject.SetRelationships(relationship, targetRelationship, 15, 30);
+                }
+            }
+            while(time < conversationObject.GetConversationTime()){
+                if(interactionTimer > maxInteractionTime){
+                    interactionTimer = 0;
+                    conversationObject.SelectInteraction();
                 }
                 meople.GetActualNeeds()[needIndex].Replenish();
                 yield return new WaitForSeconds(1);
                 time++;
+                interactionTimer++;
+            }
+        }
+        if(!breaking){
+            meople.Privacy(false);
+            meople.Busy(false);
+            meople.GetActualNeeds()[needIndex].StopRepleneshing();
+            meople.ResetDestination();
+        }
+        meople.Dequeue();
+    }
+    protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
+        int time = 0;
+        coroRunning = true;
+        bool breaking = false;
+        Conversation conversation;
+        if(needIndex == 5){
+            Meople interactedMeople = GetComponent<Meople>();
+            List<Relationship> relationships = meople.GetRelationships();
+            List<Relationship> relationshipsOfTarget = interactedMeople.GetRelationships();
+            Relationship relationship = null;
+            Relationship targetRelationship = null;
+            for(int i = 0; i < relationships.Count; i++){
+                if(relationships[i].GetMeople() == interactedMeople){
+                    relationship = relationships[i];
+                }
+            }
+            for(int i = 0; i < relationshipsOfTarget.Count; i++){
+                if(relationshipsOfTarget[i].GetMeople() == meople){
+                    targetRelationship = relationshipsOfTarget[i];
+                }
+            }
+            if(relationship == null){
+                Relationship noLongerStrangers = new Relationship();
+                Relationship noLongerStrangers2 = new Relationship();
+                meople.AddRelationship(noLongerStrangers);
+                interactedMeople.AddRelationship(noLongerStrangers2);
+                conversation = new Conversation(noLongerStrangers, noLongerStrangers2, 15, 30);
+            }else{
+                conversation = new Conversation(relationship, targetRelationship, 15, 30);
+            }
+            while(time < conversation.GetConversationTime()){
+                meople.GetActualNeeds()[needIndex].Replenish();
+                yield return new WaitForSeconds(1);
+                time++;
+            }
+        }else{
+            if(interactionTime == -1){
+                while(meople.GetNeeds()[needIndex] < 100){
+                    if(!meople.IsBusy()){
+                        breaking = true;
+                        break;
+                    }
+                    meople.GetActualNeeds()[needIndex].Replenish();
+                    yield return null;
+                }
+            }else{
+                while(time < interactionTime){
+                    if(meople.GetNeeds()[needIndex] > 99 && needIndex != 2 && needIndex != 5){
+                        if(!meople.IsBusy()){
+                            breaking = true;
+                            break;
+                        }
+                        break;
+                    }
+                    meople.GetActualNeeds()[needIndex].Replenish();
+                    yield return new WaitForSeconds(1);
+                    time++;
+                }
             }
         }
         if(!breaking){

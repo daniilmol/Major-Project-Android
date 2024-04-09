@@ -65,7 +65,6 @@ public class InteractionPanelCreator : MonoBehaviour
     }
     public void Interact(int x, Furniture furniture)
     {
-        Debug.Log("PLAYER HAS CHOSEN FURNITURE: " + furniture.name + " INDEX: " + x);
         MeopleAction meopleAction = new MeopleAction(furniture, x);
         GameMaster.selectedMeople.Enqueue(meopleAction);
         GameMaster.selectedMeople.Busy(true);

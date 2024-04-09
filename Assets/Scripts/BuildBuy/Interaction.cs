@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.InputSystem.Interactions;
 
 public class Interaction
@@ -17,6 +18,10 @@ public class Interaction
         if(needIndex == -1 || needIndex == 7){
             advertisement = null;
         }else{
+            if(needIndex == 5 && interactionName != "Start Conversation"){
+                advertisement = null;
+                return;
+            }
             advertisement = new Advertisement();
             advertisement.SetIndex(needIndex);
             advertisement.SetInteraction(this);

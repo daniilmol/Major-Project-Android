@@ -72,26 +72,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ani: {fileID: 2066957572596225792}
-  aim_point: {fileID: 0}
-  execute_walking: 0
-  execute_sitting: 0
-  execute_stealing: 0
-  execute_picking_up: 0
-  execute_running: 0
   walk_speed: 1.7
   run_speed: 3.3
-  walk: 0
-  run: 0
-  sit: 0
-  steal: 0
-  pick_up: 0
-  destermine_new_aim: 0
-  crowbar: {fileID: 5790855052030060702}
-  ready: 1
-  way_points: []
-  Sitting_points: []
-  Stealing_points: []
-  pick_up_points: []
 --- !u!114 &2255152135820567864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -438,6 +420,11 @@ MonoBehaviour:
   age: 0
   firstName: 
   lastName: 
+  openness: 0
+  agreeableness: 0
+  extraversion: 0
+  conscientiousness: 0
+  neuroticism: 0
   hairStyles: []
   skinColor: {fileID: 0}
 --- !u!65 &7929453050515332205
@@ -473,6 +460,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7efb79429e5eb4640be3442664c876a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  needVals:
+  - 100
+  - 100
+  - 50
+  - 100
+  - 100
+  - 100
+  meople: {fileID: 0}
+  button: {fileID: 0}
 --- !u!1001 &3771468904094609277
 PrefabInstance:
   m_ObjectHideFlags: 0

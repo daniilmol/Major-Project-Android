@@ -30,6 +30,8 @@ public class Relationship
     private float romanceValue;
     private ValueStatus valueStatus;
     private RelationshipStatus relationshipStatus;
+    private Meople meople;
+
     public void AffectRelationship(float value){
         this.value += value;
         if(value < -50){
@@ -59,5 +61,8 @@ public class Relationship
     }
     public RelationshipStatus GetRelationshipStatus(){
         return relationshipStatus;
+    }
+    public Meople GetMeople(){
+        return meople;
     }
 }

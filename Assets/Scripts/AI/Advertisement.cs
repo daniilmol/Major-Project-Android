@@ -7,6 +7,7 @@ public class Advertisement
     private Interaction interaction;
 
     public void SetInteraction(Interaction interaction){
+        //Debug.Log("SETTING NEED INDEX TO " + needIndex + " OF " + interaction.GetName() + " " + interaction.GetNeedIndex());
         this.interaction = interaction;
     }
     public Interaction GetInteraction(){

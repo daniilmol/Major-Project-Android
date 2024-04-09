@@ -20,14 +20,14 @@ public class Advertiser : MonoBehaviour
         if(coroutineFinished){
             StartCoroutine(Advertise());
         }
-        if(!meoplesAdded){
-            AddMeoples();
-        }
+        // if(!meoplesAdded){
+        //     AddMeoples();
+        // }
     }
     private void AddMeoples(){
         meoples = GameObject.FindObjectsOfType<Meople>();
         for(int i = 0; i < meoples.Length; i++){
-            Interaction socialInteraction = new Interaction("Start Conversation", 5, 0, 4, -1, meoples[i].gameObject);
+            Interaction socialInteraction = new Interaction("Start Conversation", 5, 0, 4, 0, meoples[i].gameObject);
         }
         meoplesAdded = true;
     }

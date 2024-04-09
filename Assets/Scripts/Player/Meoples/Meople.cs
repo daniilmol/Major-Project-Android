@@ -18,16 +18,19 @@ public class Meople : MonoBehaviour
     private bool wokenUp = false;
     private bool eating = false;
     private BoxCollider targetCollider;
+    private int conversationIndex;
     [SerializeField] float[] needVals = {100, 100, 50, 100, 100, 100};
     private ArrayList advertisements = new ArrayList();
     private List<Relationship> relationships = new List<Relationship>();
     private List<MeopleAction> actionQueue = new List<MeopleAction>();
     [SerializeField] GameObject meople;
     [SerializeField] GameObject button;
+    [SerializeField] GameObject conversationObject;
     
     void Start(){
         meopleClothing = GetComponent<clothing>();
         brain = new Brain();
+        brain.SetMeople(this);
         agent = GetComponent<NavMeshAgent>();
         interacting = false;
         targetCollider = null;
@@ -52,6 +55,8 @@ public class Meople : MonoBehaviour
         if(actionQueue.Count > 0 && !interacting){
             Vector3 interactionZone = GetAvailableInteractionZone(actionQueue[0].GetFurniture());
             if((interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null) || targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange && !actionQueue[0].GetFurniture().CoroRunning()){
+                print(interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null);
+                //print(targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange && !actionQueue[0].GetFurniture().CoroRunning());
                 Dequeue();
                 return;
             }
@@ -93,6 +98,18 @@ public class Meople : MonoBehaviour
             Dequeue();
         }
     }
+    public Conversation GetConversation(){
+        return conversationObject.GetComponent<Conversation>();
+    }
+    public int GetNumberOfActions(){
+        return actionQueue.Count;
+    }
+    public List<Relationship> GetRelationships(){
+        return relationships;
+    }
+    public void AddRelationship(Relationship relationship){
+        relationships.Add(relationship);
+    }
     public BoxCollider GetTargetCollider(){
         return targetCollider;
     }
@@ -103,12 +120,12 @@ public class Meople : MonoBehaviour
     }
     private Vector3 GetAvailableInteractionZone(Furniture furniture){
         foreach(Transform zone in furniture.transform){
-            if(zone.GetComponent<BoxCollider>() == targetCollider){
+            if(zone.GetComponent<BoxCollider>() != null &&zone.GetComponent<BoxCollider>() == targetCollider){
                 return Vector3.zero;
             }
         }
         foreach(Transform zone in furniture.transform){
-            if(!zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider){
+            if(zone.GetComponent<InteractionZone>() != null && !zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider){
                 targetCollider = zone.GetComponent<BoxCollider>();
                 return zone.position;
             }
@@ -121,11 +138,15 @@ public class Meople : MonoBehaviour
             if(actionQueue.Count > 0){
                 bool empty = true;
                 foreach(Transform zone in actionQueue[0].GetFurniture().transform){
-                    if((zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider) || zone.GetComponent<InteractionZone>().GetOccupiers() - 1 > 0){
+                    if(zone.GetComponent<InteractionZone>() != null && (zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider || zone.GetComponent<InteractionZone>().GetOccupiers() - 1 > 0)){
                         empty = false;
                     }
                 }
                 if(empty && interacting){
+                    if(GameObject.Find(""+conversationIndex) != null){
+                        Destroy(GameObject.Find(""+conversationIndex));
+                        conversationIndex = -1;
+                    }
                     actionQueue[0].GetFurniture().StopAllCoroutines();
                     actionQueue[0].GetFurniture().NotRunning();
                 }
@@ -158,6 +179,10 @@ public class Meople : MonoBehaviour
                 }
             }
             if(empty){
+                if(GameObject.Find(""+conversationIndex) != null){
+                    Destroy(GameObject.Find(""+conversationIndex));
+                    conversationIndex = -1;
+                }
                 actionQueue[index].GetFurniture().StopAllCoroutines();
                 actionQueue[index].GetFurniture().NotRunning();
             }
@@ -181,7 +206,7 @@ public class Meople : MonoBehaviour
         actionQueue.RemoveAt(index);
         GameMaster.DequeueActionQueueButtons(index, this);
     }
-    private int FindRepleneshingNeed(){
+    public int FindRepleneshingNeed(){
         for(int i = 0; i < needs.Length; i++){
             if(needs[i].Repleneshing()){
                 return i;
@@ -191,6 +216,12 @@ public class Meople : MonoBehaviour
     }
     public Brain GetBrain(){
         return brain;
+    }
+    public int GetConversationIndex(){
+        return conversationIndex;
+    }
+    public void SetConversationIndex(int x){
+        conversationIndex = x;
     }
     public void Enqueue(MeopleAction meopleAction){
         if(actionQueue.Count < 8){
@@ -248,7 +279,7 @@ public class Meople : MonoBehaviour
                 if(!interacting && actionQueue.Count < 1)
                     Enqueue(meopleAction);
             }
-            float AiDecisionMakingTimer = Random.Range(5, 15);
+            float AiDecisionMakingTimer = Random.Range(10, 20);
             yield return new WaitForSeconds(AiDecisionMakingTimer);
         }
     }
