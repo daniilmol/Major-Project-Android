@@ -154,6 +154,7 @@ public class clothing : MonoBehaviour
     public int gender;
     public float weight;
     public int age;
+    public int ageProgression;
     public string firstName;
     public string lastName;
     public float openness;
@@ -161,6 +162,7 @@ public class clothing : MonoBehaviour
     public float extraversion;
     public float conscientiousness;
     public float neuroticism;
+    public string[] startingRelationshipStatus;
     public GameObject[] hairStyles;
     public Texture[][] hairTextures = new Texture[5][];
     public Texture[][] topTextures = new Texture[5][];
@@ -173,6 +175,11 @@ public class clothing : MonoBehaviour
     void Awake(){
         weight = 25;
         height = 1;
+        ageProgression = 0;
+        startingRelationshipStatus  = new string[8];
+        for(int i = 0; i < startingRelationshipStatus.Length; i++){
+            startingRelationshipStatus[i] = "";
+        }
         hairStyles = new GameObject[5];
         tops = new GameObject[5];
         bottoms = new GameObject[2];

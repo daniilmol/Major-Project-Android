@@ -38,6 +38,7 @@ public class Relationship
         this.valueStatus = valueStatus;
         this.relationshipStatus = relationshipStatus;
         this.meople = meople;
+        Debug.Log("Relationship created with " + meople.GetComponent<clothing>().firstName + " with status " + relationshipStatus + " and value: " + value);
     }
 
     public void AffectRelationship(float value){
@@ -46,8 +47,9 @@ public class Relationship
             valueStatus = ValueStatus.Enemy;
         }else if(value < -20){
             valueStatus = ValueStatus.Disliked;
-        }else if(romanceValue > 30){
-            valueStatus = ValueStatus.RomancePartner;
+        // }else if(romanceValue > 30){
+        //     valueStatus = ValueStatus.RomancePartner;
+        // 
         }else if(value > -20 && value < 25){
             valueStatus = ValueStatus.Acquaintance;
         }else if(value < 45){

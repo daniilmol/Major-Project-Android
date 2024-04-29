@@ -26,19 +26,19 @@ public class Furniture : MonoBehaviour
         SetAllZones();
     }
     void Update(){
-        if(GetComponent<Meople>() != null){
-            Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
-            int[] indicies = new int[conversations.Length];
-            for(int i = 0; i < indicies.Length; i++){
-                indicies[i] = -1;
-            }
-            for(int i = 0; i < conversations.Length; i++){
-                print(Int32.Parse(conversations[i].gameObject.name)); 
-                if(Int32.Parse(conversations[i].gameObject.name) < indicies.Length && ++indicies[Int32.Parse(conversations[i].gameObject.name)] > 1){
-                    Destroy(conversations[i]);
-                }
-            }
-        }
+        // if(GetComponent<Meople>() != null){
+        //     Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
+        //     int[] indicies = new int[conversations.Length];
+        //     for(int i = 0; i < indicies.Length; i++){
+        //         indicies[i] = -1;
+        //     }
+        //     for(int i = 0; i < conversations.Length; i++){
+        //         print(Int32.Parse(conversations[i].gameObject.name)); 
+        //         if(Int32.Parse(conversations[i].gameObject.name) < indicies.Length && ++indicies[Int32.Parse(conversations[i].gameObject.name)] > 1){
+        //             Destroy(conversations[i]);
+        //         }
+        //     }
+        // }
         if(boredScore != 0){
             boredScore -= Time.deltaTime;
             if(boredScore < 0){
@@ -135,49 +135,108 @@ public class Furniture : MonoBehaviour
                 meople.AddRelationship(noLongerStrangers);
                 interactedMeople.AddRelationship(noLongerStrangers2);
                 Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
-                meople.SetConversationIndex(conversations.Length);
-                interactedMeople.SetConversationIndex(conversations.Length);
-                if(conversations.Length > 0 && Int32.Parse(conversations[conversations.Length - 1].name) == conversations.Length - 1){
+                if(meople.GetConversationIndex() == -1){
+                    meople.SetConversationIndex(conversations.Length);
+                    print("CONVO INDEX: " + meople.GetConversationIndex());
+                }
+                if(interactedMeople.GetConversationIndex() == -1){
+                    interactedMeople.SetConversationIndex(conversations.Length);
+                    print("CONVO INDEX: " + interactedMeople.GetConversationIndex());
+                }
+                int lastChance = conversations.Length;
+                if(conversations.Length > 0 && Int32.Parse(conversations[conversations.Length - 1].name) == meople.GetConversationIndex() && conversations[conversations.Length - 1].GetIndex() == meople.GetConversationIndex()){
+                    print(Int32.Parse(conversations[conversations.Length - 1].name) + " " + meople.GetConversationIndex() + " " + conversations[conversations.Length - 1].GetIndex() +" " + meople.GetConversationIndex());
                     conversationObject = conversations[conversations.Length - 1];
                     meople.SetConversationIndex(conversations.Length - 1);
                     interactedMeople.SetConversationIndex(conversations.Length - 1);
                 }else{
+                    if(conversations.Length > 0)
+                        print(Int32.Parse(conversations[conversations.Length - 1].name) + " " + meople.GetConversationIndex() + " " + conversations[conversations.Length - 1].GetIndex() +" " + meople.GetConversationIndex());
                     conversationObject = Instantiate(meople.GetConversation());
+                    conversationObject.SetIndex(meople.GetConversationIndex());
                     conversationObject.name = "" + meople.GetConversationIndex();
                     conversationObject.SetRelationships(noLongerStrangers, noLongerStrangers2, 30, 60);
+                    conversations = GameObject.FindObjectsOfType<Conversation>();
+                    int[] indicies = new int[conversations.Length];
+                    for(int i = 0; i < indicies.Length; i++){
+                        indicies[i] = 0;
+                    }
+                    for(int i = 0; i < conversations.Length; i++){
+                        if(Int32.Parse(conversations[i].gameObject.name) < indicies.Length && ++indicies[Int32.Parse(conversations[i].gameObject.name)] > 1){
+                            Destroy(conversations[i].gameObject);
+                            conversationObject = conversations[conversations.Length - 1];
+                            meople.SetConversationIndex(conversations.Length - 1);
+                            interactedMeople.SetConversationIndex(conversations.Length - 1);
+                        }
+                    }
                 }
             }else{
                 Conversation[] conversations = GameObject.FindObjectsOfType<Conversation>();
-                meople.SetConversationIndex(conversations.Length);
-                interactedMeople.SetConversationIndex(conversations.Length);
-                if(conversations.Length > 0 && Int32.Parse(conversations[conversations.Length - 1].name) == conversations.Length - 1){
+                if(meople.GetConversationIndex() == -1){
+                    meople.SetConversationIndex(conversations.Length);
+                }
+                if(interactedMeople.GetConversationIndex() == -1){
+                    interactedMeople.SetConversationIndex(conversations.Length);
+                }
+                if(conversations.Length > 0 && Int32.Parse(conversations[conversations.Length - 1].name) == meople.GetConversationIndex() && conversations[conversations.Length - 1].GetIndex() == meople.GetConversationIndex()){
+                    print(Int32.Parse(conversations[conversations.Length - 1].name) + " " + meople.GetConversationIndex() + " " + conversations[conversations.Length - 1].GetIndex() +" " + meople.GetConversationIndex());
                     conversationObject = conversations[conversations.Length - 1];
                     meople.SetConversationIndex(conversations.Length - 1);
                     interactedMeople.SetConversationIndex(conversations.Length - 1);
                 }else{
+                    if(conversations.Length > 0)
+                        print(Int32.Parse(conversations[conversations.Length - 1].name) + " " + meople.GetConversationIndex() + " " + conversations[conversations.Length - 1].GetIndex() +" " + meople.GetConversationIndex());
                     conversationObject = Instantiate(meople.GetConversation());
+                    conversationObject.SetIndex(meople.GetConversationIndex());
                     conversationObject.name = "" + meople.GetConversationIndex();
                     conversationObject.SetRelationships(relationship, targetRelationship, 30, 60);
+                    conversations = GameObject.FindObjectsOfType<Conversation>();
+                    int[] indicies = new int[conversations.Length];
+                    for(int i = 0; i < indicies.Length; i++){
+                        indicies[i] = 0;
+                    }
+                    for(int i = 0; i < conversations.Length; i++){
+                        if(Int32.Parse(conversations[i].gameObject.name) < indicies.Length && ++indicies[Int32.Parse(conversations[i].gameObject.name)] > 1){
+                            Destroy(conversations[i].gameObject);
+                            conversationObject = conversations[conversations.Length - 1];
+                            meople.SetConversationIndex(conversations.Length - 1);
+                            interactedMeople.SetConversationIndex(conversations.Length - 1);
+                        }
+                    }
                 }
             }
+            conversationObject.SetAntiRaceConditionMeople(meople);
             while(time < conversationObject.GetConversationTime()){
+                Conversation[] c = GameObject.FindObjectsOfType<Conversation>();
+                for(int i = 0; i < c.Length; i++){
+                    c[i].SetIndex(i);
+                    c[i].name = ""+i;
+                    Relationship[] both = c[i].GetTwoParties();
+                    for(int j = 0; j < both.Length; j++){
+                        both[j].GetMeople().SetConversationIndex(i);
+                    }
+                }
                 if(interactionTimer > maxInteractionTime){
                     interactionTimer = 0;
-                    conversationObject.SelectInteraction();
+                    conversationObject.SelectInteraction(meople);
                 }
                 meople.GetActualNeeds()[needIndex].Replenish();
                 yield return new WaitForSeconds(1);
                 time++;
                 interactionTimer++;
             }
+            interactedMeople.Talking(false);
+            meople.Talking(false);
+            meople.Dequeue();
+            interactedMeople.Dequeue();
         }
-        if(!breaking){
-            meople.Privacy(false);
-            meople.Busy(false);
-            meople.GetActualNeeds()[needIndex].StopRepleneshing();
-            meople.ResetDestination();
-        }
-        meople.Dequeue();
+        // if(!breaking){
+        //     meople.Privacy(false);
+        //     meople.Busy(false);
+        //     meople.GetActualNeeds()[needIndex].StopRepleneshing();
+        //     meople.ResetDestination();
+        // }
+        // meople.Dequeue();
     }
     protected IEnumerator ReplenishNeeds(Meople meople, int needIndex, int interactionTime){
         int time = 0;

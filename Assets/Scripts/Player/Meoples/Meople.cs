@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Meople : MonoBehaviour
 {
@@ -12,11 +13,13 @@ public class Meople : MonoBehaviour
     private Brain brain;
     private NavMeshAgent agent;
     private Need[] needs = new Need[6];
+    private string[] relationshipStatuses;
     private int happiness;
     private bool interacting;
     private bool withinInteractionRange = false;
     private bool wokenUp = false;
     private bool eating = false;
+    private bool talking = false;
     private BoxCollider targetCollider;
     private int conversationIndex;
     [SerializeField] float[] needVals = {100, 100, 50, 100, 100, 100};
@@ -26,7 +29,8 @@ public class Meople : MonoBehaviour
     [SerializeField] GameObject meople;
     [SerializeField] GameObject button;
     [SerializeField] GameObject conversationObject;
-    
+    public string[] relationshipNames = new string[100];
+    private GameMaster gameMaster;
     void Start(){
         meopleClothing = GetComponent<clothing>();
         brain = new Brain();
@@ -34,6 +38,8 @@ public class Meople : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         interacting = false;
         targetCollider = null;
+        conversationIndex = -1;
+        gameMaster = GameMaster.gameMaster;
         InitializeNeeds();
         StartCoroutine(Drain());
         StartCoroutine(ProcessAdvertisements());
@@ -41,6 +47,7 @@ public class Meople : MonoBehaviour
     void Update(){
         CheckForMoreImportantNeeds();
         CheckIfEating();
+        DeleteAnyExtraConversations();
         for(int i = 0; i < needs.Length; i++){
             needVals[i] = needs[i].GetAmount();
             if(needs[i].Repleneshing()){
@@ -55,13 +62,12 @@ public class Meople : MonoBehaviour
         if(actionQueue.Count > 0 && !interacting){
             Vector3 interactionZone = GetAvailableInteractionZone(actionQueue[0].GetFurniture());
             if((interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null) || targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange && !actionQueue[0].GetFurniture().CoroRunning()){
-                print(interactionZone == Vector3.zero && !withinInteractionRange && targetCollider == null);
-                //print(targetCollider.GetComponent<InteractionZone>().IsFull() && !withinInteractionRange && !actionQueue[0].GetFurniture().CoroRunning());
                 Dequeue();
                 return;
-            }
-            if(interactionZone != Vector3.zero)
+            }                                                                                        
+            if(interactionZone != Vector3.zero){
                 agent.SetDestination(interactionZone);
+            }
             if(withinInteractionRange && !targetCollider.GetComponent<InteractionZone>().IsFull()){
                 targetCollider.GetComponent<InteractionZone>().Use(true, this, false);
                 Busy(true);
@@ -73,6 +79,14 @@ public class Meople : MonoBehaviour
                 actionQueue[0].GetFurniture().Interact(actionQueue[0].GetIndex(), this);
             }else if(!withinInteractionRange && targetCollider.GetComponent<InteractionZone>().IsFull() && !interacting){
                 Dequeue();
+            }
+        }
+    }
+    private void DeleteAnyExtraConversations(){
+        for(int i = 0; i < actionQueue.Count; i++){
+            if(i > 0 && actionQueue[i].GetFurniture().GetInteractions()[0].GetNeedIndex() == 5){
+                DequeueAt(i);
+                //actionQueue[i].GetFurniture().GetComponent<Meople>().Dequeue();
             }
         }
     }
@@ -96,6 +110,32 @@ public class Meople : MonoBehaviour
                 wokenUp = true;
             }
             Dequeue();
+        }
+    }
+    public void AgeUp(){
+        meopleClothing.ageProgression++;
+        if(meopleClothing.ageProgression > gameMaster.GetNumDays()[meopleClothing.age + 1]){
+            meopleClothing.age++;
+            float weight = meopleClothing.weight; //0 = 0.8, 25 = 1.0, 50 = 1.2
+            float characterScale = weight * 0.008f - 0.2f;
+            float ageScale;
+            if (meopleClothing.age == 0)
+            {
+                ageScale = 0.4f;
+            }
+            else if (meopleClothing.age == 1)
+            {
+                ageScale = 0.6f;
+            }
+            else if (meopleClothing.age == 2)
+            {
+                ageScale = 0.8f;
+            }
+            else
+            {
+                ageScale = 1.0f;
+            }
+            transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
         }
     }
     public Conversation GetConversation(){
@@ -132,6 +172,12 @@ public class Meople : MonoBehaviour
         }
         return Vector3.zero;
     }
+    public void Talking(bool talking){
+        this.talking = talking;
+    }
+    public bool IsTalking(){
+        return talking;
+    }
     public void Dequeue(){
         if(actionQueue.Count > 0){
             int needIndex = actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex();
@@ -143,14 +189,16 @@ public class Meople : MonoBehaviour
                     }
                 }
                 if(empty && interacting){
-                    if(GameObject.Find(""+conversationIndex) != null){
-                        Destroy(GameObject.Find(""+conversationIndex));
-                        conversationIndex = -1;
-                    }
                     actionQueue[0].GetFurniture().StopAllCoroutines();
                     actionQueue[0].GetFurniture().NotRunning();
                 }
-
+                if(needIndex == 5){
+                    if(GameObject.Find(""+conversationIndex) != null){
+                        Destroy(GameObject.Find(""+conversationIndex));
+                        talking = false;
+                    }
+                    conversationIndex = -1;
+                }
                 actionQueue.RemoveAt(0);
             }
             if(interacting)
@@ -174,15 +222,22 @@ public class Meople : MonoBehaviour
             int needIndex = actionQueue[0].GetFurniture().GetInteractions()[actionQueue[0].GetIndex()].GetNeedIndex();
             bool empty = true;
             foreach(Transform zone in actionQueue[0].GetFurniture().transform){
-                if((zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider) || zone.GetComponent<InteractionZone>().GetOccupiers() - 1 > 0){
+                if(zone.GetComponent<InteractionZone>() != null && ((zone.GetComponent<InteractionZone>().IsFull() && zone.GetComponent<BoxCollider>() != targetCollider) || zone.GetComponent<InteractionZone>().GetOccupiers() - 1 > 0)){
                     empty = false;
                 }
             }
             if(empty){
                 if(GameObject.Find(""+conversationIndex) != null){
                     Destroy(GameObject.Find(""+conversationIndex));
-                    conversationIndex = -1;
+                    Meople[] meoples = GameObject.FindObjectsOfType<Meople>();
+                    foreach(Meople m in meoples){
+                        if(m != this && m.GetConversationIndex() == conversationIndex){
+                            m.Dequeue();
+                            talking = false;
+                        }
+                    }
                 }
+                conversationIndex = -1;
                 actionQueue[index].GetFurniture().StopAllCoroutines();
                 actionQueue[index].GetFurniture().NotRunning();
             }
@@ -225,6 +280,7 @@ public class Meople : MonoBehaviour
     }
     public void Enqueue(MeopleAction meopleAction){
         if(actionQueue.Count < 8){
+            brain.ChangeMind(false);
             actionQueue.Add(meopleAction);
             GameMaster.CreateActionQueueButton(meopleAction, this);
         }
@@ -273,11 +329,13 @@ public class Meople : MonoBehaviour
                 }else{
                     meopleAction = brain.ProcessAdvertisements(advertisements, needs, false);
                 }
-                if(meopleAction.GetFurniture() is Bed){
+                if(meopleAction != null && meopleAction.GetFurniture() is Bed){
                     NoNeedToSleep();
                 }
-                if(!interacting && actionQueue.Count < 1)
+                if(meopleAction != null && !interacting && actionQueue.Count < 1){
                     Enqueue(meopleAction);
+                }
+                brain.ChangeMind(false);
             }
             float AiDecisionMakingTimer = Random.Range(10, 20);
             yield return new WaitForSeconds(AiDecisionMakingTimer);
@@ -290,7 +348,12 @@ public class Meople : MonoBehaviour
         needs[2] = new Happiness(0.25f, 1f);
         needs[3] = new Bladder(0.1f, 10f);
         needs[4] = new Hygiene(0.1f, 5f);
-        needs[5] = new Social(0.05f, 2f);
+        float e = meopleClothing.extraversion; 
+        if(e <= 0.5f){
+            needs[5] = new Social(e / 20 + 0.025f, 3f); 
+        }else{
+            needs[5] = new Social(e / 20 + 0.05f, 1.5f); 
+        }
         for(int i = 0; i < needs.Length; i++){
             needs[i].SetAmount(needVals[i]);
         }
@@ -401,12 +464,81 @@ public class Meople : MonoBehaviour
         }
       return null;
     }
+    public void InitializeRelationships(){
+        for(int i = 0; i < GameMaster.family.Length; i++){
+            if(GameMaster.family[i] != this){
+                Relationship.RelationshipStatus status = Relationship.RelationshipStatus.Stranger;
+                Relationship.ValueStatus valueStatus = Relationship.ValueStatus.Acquaintance;
+                float initValue = 0;
+                float romanceValue = 0;
+                if(relationshipNames[i] == "Housemate"){
+                    initValue = 0;
+                    romanceValue = 0;
+                }else if(relationshipNames[i] == "Wife" || relationshipNames[i] == "Husband"){
+                    initValue = 75;
+                    romanceValue = 100;
+                    valueStatus = Relationship.ValueStatus.CloseFriend;
+                    if(relationshipNames[i] == "Wife"){
+                        status = Relationship.RelationshipStatus.Wife;
+                    }else if(relationshipNames[i] == "Husband"){
+                        status = Relationship.RelationshipStatus.Husband;
+                    }
+                }else if(relationshipNames[i] == "Fiance"){
+                    initValue = 50;
+                    romanceValue = 75;
+                    valueStatus = Relationship.ValueStatus.CloseFriend;
+                    status = Relationship.RelationshipStatus.Fiance;
+                }else if(relationshipNames[i] == "Boyfriend" || relationshipNames[i] == "Girlfriend"){
+                    initValue = 25;
+                    romanceValue = 50;
+                    valueStatus = Relationship.ValueStatus.Friend;
+                    if(relationshipNames[i] == "Girlfriend"){
+                        status = Relationship.RelationshipStatus.Girlfriend;
+                    }else if(relationshipNames[i] == "Boyfriend"){
+                        status = Relationship.RelationshipStatus.Boyfriend;
+                    }
+                }else if(relationshipNames[i] == "Father" || relationshipNames[i] == "Mother"){
+                    initValue = 50;
+                    romanceValue = 0;
+                    valueStatus = Relationship.ValueStatus.CloseFriend;
+                    if(relationshipNames[i] == "Father"){
+                        status = Relationship.RelationshipStatus.Father;
+                    }else if(relationshipNames[i] == "Mother"){
+                        status = Relationship.RelationshipStatus.Mother;
+                    }
+                }else if(relationshipNames[i] == "Daughter" || relationshipNames[i] == "Son"){
+                    initValue = 50;
+                    romanceValue = 0;
+                    valueStatus = Relationship.ValueStatus.CloseFriend;
+                    if(relationshipNames[i] == "Son"){
+                        status = Relationship.RelationshipStatus.Son;
+                    }else if(relationshipNames[i] == "Daughter"){
+                        status = Relationship.RelationshipStatus.Daughter;
+                    }
+                }else if(relationshipNames[i] == "Brother" || relationshipNames[i] == "Sister"){
+                    initValue = 30;
+                    romanceValue = 0;
+                    valueStatus = Relationship.ValueStatus.Friend;
+                    if(relationshipNames[i] == "Brother"){
+                        status = Relationship.RelationshipStatus.Brother;
+                    }else if(relationshipNames[i] == "Sister"){
+                        status = Relationship.RelationshipStatus.Sister;
+                    }
+                }
+                Relationship relationship = new Relationship(initValue, romanceValue, valueStatus, status, GameMaster.family[i]);
+                relationships.Add(relationship);
+            }
+        }
+    }
     public float GetWeight(){
         return meopleClothing.weight;
     }
     public float[] GetPersonality(){
         float[] personality = {meopleClothing.openness, meopleClothing.agreeableness, meopleClothing.conscientiousness, meopleClothing.extraversion, meopleClothing.neuroticism};
         return personality;
+    }
+    public string[] GetRelationshipStatuses(){
+        return meopleClothing.startingRelationshipStatus;
     }
     public void LoadMeople(){
         MeopleData[] meopleData = CharacterCreatorSaver.LoadFamily();
@@ -454,6 +586,7 @@ public class Meople : MonoBehaviour
             meopleStats.conscientiousness = meopleData[i].GetPersonality()[2];
             meopleStats.extraversion = meopleData[i].GetPersonality()[3];
             meopleStats.neuroticism = meopleData[i].GetPersonality()[4];
+            meopleStats.startingRelationshipStatus = meopleData[i].GetRelationshipStatuses();
         }
     }
 }

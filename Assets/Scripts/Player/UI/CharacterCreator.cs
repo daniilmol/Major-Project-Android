@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Data;
+using System.Security.Cryptography.X509Certificates;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -49,9 +52,12 @@ public class CharacterCreator : MonoBehaviour
     [SerializeField] GameObject[] hairStylesE;
     [SerializeField] GameObject character;
     [SerializeField] GameObject meople;
+    [SerializeField] GameObject nameLabel;
+    [SerializeField] GameObject relationshipDropdown;
     [SerializeField] Animator anyAnimator;
     [SerializeField] Animator toddlerAnimator;
     private clothing characterClothing;
+    private List<GameObject> relationshipUI = new List<GameObject>();
     private Vector3 touchStart;
     private GameObject[] skinButtons = new GameObject[5];
     [SerializeField] GameObject[] hairButtons;
@@ -67,8 +73,10 @@ public class CharacterCreator : MonoBehaviour
     public float neuroticism;
     private bool manualNameChange;
     private bool loadingCharacterPersonality;
+    private bool chanX;
     void Start()
     {
+        chanX = false;
         curSim = 0;
         skinButtons[0] = brownButton.transform.Find("Selected").gameObject;
         skinButtons[1] = lightBrownButton.transform.Find("Selected").gameObject;
@@ -593,6 +601,52 @@ public class CharacterCreator : MonoBehaviour
                 break;
         }
         characterClothing.age = age;
+        int meopleIndex = 0;
+        for(int i = 1; i < relationshipUI.Count; i+=2){
+            if(meoples[meopleIndex] != meoples[curSim]){
+                EnsureRealisticRelationships(relationshipUI[i].GetComponent<TMP_Dropdown>(), meopleIndex, true);
+            }else{
+                i-=2;
+            }
+            meopleIndex++;
+        }
+    }
+    public void AssignRelationship(){
+        if(!chanX){
+            int x = 1;
+            for(int i = 0; i < meoples.Count; i++){
+                if(meoples[i] != meoples[curSim]){
+                    string relationshipName = relationshipUI[x].GetComponent<TMP_Dropdown>().options[relationshipUI[x].GetComponent<TMP_Dropdown>().value].text;
+                    characterClothing.startingRelationshipStatus[i] = relationshipName;
+                    if(relationshipName == "Wife" && meoples[curSim].GetComponent<clothing>().gender == 1){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = relationshipName;
+                    }else if((relationshipName == "Wife" || relationshipName == "Husband") && meoples[curSim].GetComponent<clothing>().gender == 0){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Husband";
+                    }else if((relationshipName == "Wife" || relationshipName == "Husband") && meoples[curSim].GetComponent<clothing>().gender == 1){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Wife";
+                    }else if(relationshipName == "Fiance" || relationshipName == "Housemate"){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = relationshipName;
+                    }else if((relationshipName == "Brother" || relationshipName == "Sister") && meoples[curSim].GetComponent<clothing>().gender == 0){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Brother";
+                    }else if((relationshipName == "Brother" || relationshipName == "Sister") && meoples[curSim].GetComponent<clothing>().gender == 1){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Sister";
+                    }else if((relationshipName == "Daughter" || relationshipName == "Son") && meoples[curSim].GetComponent<clothing>().gender == 0){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Father";
+                    }else if((relationshipName == "Daughter" || relationshipName == "Son") && meoples[curSim].GetComponent<clothing>().gender == 1){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Mother";
+                    }else if((relationshipName == "Father" || relationshipName == "Mother") && meoples[curSim].GetComponent<clothing>().gender == 0){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Son";
+                    }else if((relationshipName == "Father" || relationshipName == "Mother") && meoples[curSim].GetComponent<clothing>().gender == 1){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Daughter";
+                    }else if((relationshipName == "Boyfriend" || relationshipName == "Girlfriend") && meoples[curSim].GetComponent<clothing>().gender == 0){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Boyfriend";
+                    }else if((relationshipName == "Boyfriend" || relationshipName == "Girlfriend") && meoples[curSim].GetComponent<clothing>().gender == 1){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Girlfriend";
+                    }
+                    x+=2;
+                }
+            }
+        }
     }
     public void PlayGame()
     {
@@ -646,6 +700,7 @@ public class CharacterCreator : MonoBehaviour
                 ageScale = 1.0f;
             }
             createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
+
         }
     }
     public void DeleteMeople()
@@ -670,6 +725,7 @@ public class CharacterCreator : MonoBehaviour
             nextButton.interactable = true;
             deleteButton.interactable = true;
             InitializeCharacter();
+            CreateRelationshipOptions();
         }
         else
         {
@@ -704,7 +760,29 @@ public class CharacterCreator : MonoBehaviour
             {
                 case 0:
                     GameObject tmpMeople = meoples[curSim];
+                    Destroy(relationshipUI[relationshipUI.Count - 1]);
+                    Destroy(relationshipUI[relationshipUI.Count - 2]);
+                    relationshipUI.RemoveAt(relationshipUI.Count - 1);
+                    relationshipUI.RemoveAt(relationshipUI.Count - 1);
+                    for(int i = 0; i < meoples.Count; i++){
+                        if(meoples[i] != meoples[curSim]){
+                            meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "";
+                        }
+                    }
                     meoples.Remove(meoples[curSim]);
+                    for(int i = 0; i < meoples.Count; i++){
+                        for(int j = 0; j < meoples[i].GetComponent<clothing>().startingRelationshipStatus.Length; j++){
+                            if(meoples[i].GetComponent<clothing>().startingRelationshipStatus[j] == ""){
+                                int k = j;
+                                while(meoples[i].GetComponent<clothing>().startingRelationshipStatus[k] == "" 
+                                && k + 1 < meoples[i].GetComponent<clothing>().startingRelationshipStatus.Length){
+                                    meoples[i].GetComponent<clothing>().startingRelationshipStatus[k] = meoples[i].GetComponent<clothing>().startingRelationshipStatus[k + 1];
+                                    meoples[i].GetComponent<clothing>().startingRelationshipStatus[k + 1] = "";
+                                    k++;
+                                }
+                            }
+                        }
+                    }
                     Destroy(tmpMeople);
                     curSim = meoples.Count - 1;
                     meoples[curSim].SetActive(true);
@@ -873,6 +951,134 @@ public class CharacterCreator : MonoBehaviour
         extraversionSlider.value = characterClothing.extraversion;
         neuroticismSlider.value = characterClothing.neuroticism;
         loadingCharacterPersonality = false;
+        int x = 0;
+        if(relationshipUI.Count > 0){
+            for(int i = 0; i < meoples.Count; i++){
+                if(meoples[i] != meoples[curSim]){
+                    relationshipUI[x].GetComponent<TextMeshProUGUI>().text = meoples[i].GetComponent<clothing>().firstName;
+                    x+=2;
+                }
+            }
+            x = 1;
+            chanX = true;
+            for(int i = 0; i < meoples.Count; i++){
+                if(meoples[i] != meoples[curSim]){
+                    EnsureRealisticRelationships(relationshipUI[x].GetComponent<TMP_Dropdown>(), i, false);
+                    string selectedR = meoples[curSim].GetComponent<clothing>().startingRelationshipStatus[i];
+                    int selectedV = 0;
+                    for(int j = 0; j < relationshipUI[x].GetComponent<TMP_Dropdown>().options.Count; j++){
+                        if(relationshipUI[x].GetComponent<TMP_Dropdown>().options[j].text == selectedR){
+                            selectedV = j;
+                        }
+                    }
+                    relationshipUI[x].GetComponent<TMP_Dropdown>().value = selectedV;
+                    x+=2;
+                }
+            }
+            chanX = false;
+        }
+    }
+    private void EnsureRealisticRelationships(TMP_Dropdown d, int x, bool changedAge){
+        List<TMP_Dropdown.OptionData> originalOptions = d.options;
+        d.ClearOptions();
+        clothing curClothing = meoples[curSim].GetComponent<clothing>();
+        clothing checkSim = meoples[x].GetComponent<clothing>();
+        if(curClothing.age < 3){
+            if(checkSim.age >= 3 && checkSim.gender == 0){
+                List<string> relationShips = new List<string>{"Housemate", "Father"};
+                d.AddOptions(relationShips);
+            }else if(checkSim.age >= 3 && checkSim.gender == 1){
+                List<string> relationShips = new List<string>{"Housemate", "Mother"};
+                d.AddOptions(relationShips);
+            }else if(checkSim.age < 2 && checkSim.gender == 0){
+                List<string> relationShips = new List<string>{"Housemate", "Brother"};
+                d.AddOptions(relationShips);
+            }else if(checkSim.age < 2 && checkSim.gender == 1){
+                List<string> relationShips = new List<string>{"Housemate", "Sister"};
+                d.AddOptions(relationShips);
+            }else if(curClothing.age == 2 && checkSim.age == 2 && checkSim.gender == 0){
+                List<string> relationShips = new List<string>{"Housemate", "Brother", "Boyfriend"};
+                d.AddOptions(relationShips);
+            }else if(curClothing.age == 2 && checkSim.age == 2 && checkSim.gender == 1){
+                List<string> relationShips = new List<string>{"Housemate", "Sister", "Girlfriend"};
+                d.AddOptions(relationShips);
+            }else if(curClothing.age < 2 && checkSim.age == 2 && checkSim.gender == 1){
+                List<string> relationShips = new List<string>{"Housemate", "Sister"};
+                d.AddOptions(relationShips);
+            }else if(curClothing.age < 2 && checkSim.age == 2 && checkSim.gender == 0){
+                List<string> relationShips = new List<string>{"Housemate", "Brother"};
+                d.AddOptions(relationShips);
+            }
+        }else if(curClothing.age >= 3){
+            if(checkSim.age < 3 && checkSim.gender == 0){
+                List<string> relationShips = new List<string>{"Housemate", "Son"};
+                d.AddOptions(relationShips);
+            }else if(checkSim.age < 3 && checkSim.gender == 1){
+                List<string> relationShips = new List<string>{"Housemate", "Daughter"};
+                d.AddOptions(relationShips);
+            }else if(checkSim.age >= 3 && checkSim.gender == 0){
+                List<string> relationShips = new List<string>{"Housemate", "Brother", "Fiance", "Boyfriend", "Husband"};
+                d.AddOptions(relationShips);
+            }else if(checkSim.age >= 3 && checkSim.gender == 1){
+                List<string> relationShips = new List<string>{"Housemate", "Sister", "Fiance", "Girlfriend", "Wife"};
+                d.AddOptions(relationShips);
+            }
+        }
+        print(d.options != originalOptions);
+
+        if(AreDropdownOptionListsEqual(d.options, originalOptions) && changedAge){
+            print("A change was detected");
+            checkSim.startingRelationshipStatus[curSim] = "Housemate";
+            curClothing.startingRelationshipStatus[x] = "Housemate";
+        }
+    }
+    private bool AreDropdownOptionListsEqual(List<TMP_Dropdown.OptionData> list1, List<TMP_Dropdown.OptionData> list2) {
+        if (list1.Count != list2.Count) {
+            return false;
+        }
+
+        for (int i = 0; i < list1.Count; i++)
+        {
+            if (list1[i].text != list2[i].text)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    private void CreateRelationshipOptions(){
+        GameObject nameLabel = Instantiate(this.nameLabel, meopologyPanel.transform);
+        GameObject relationshipDropdown = Instantiate(this.relationshipDropdown, meopologyPanel.transform);
+        nameLabel.GetComponent<TextMeshProUGUI>().text = meoples[meoples.Count - 1].GetComponent<clothing>().firstName;
+        nameLabel.GetComponent<RectTransform>().anchorMin = new Vector2(0,1);
+        nameLabel.GetComponent<RectTransform>().anchorMax = new Vector2(0,1);
+        nameLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(380, -495 - ((meoples.Count - 2) * 90));
+        nameLabel.GetComponent<RectTransform>().sizeDelta = new Vector2(300, 50);
+        relationshipDropdown.GetComponent<RectTransform>().anchorMin = new Vector2(0,1);
+        relationshipDropdown.GetComponent<RectTransform>().anchorMax = new Vector2(0,1);
+        relationshipDropdown.GetComponent<RectTransform>().anchoredPosition = new Vector2(380, -545 - ((meoples.Count - 2) * 90));
+        List<string> relationShips = new List<string>{"Housemate", "Father", "Mother", "Son", "Daughter", "Brother", "Sister", "Fiance",
+        "Girlfriend", "Boyfriend", "Husband", "Wife", "Grandparent"};
+        relationshipDropdown.GetComponent<TMP_Dropdown>().AddOptions(relationShips);
+        EnsureRealisticRelationships(relationshipDropdown.GetComponent<TMP_Dropdown>(), meoples.Count - 1, false);
+        relationshipDropdown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { AssignRelationship(); });
+        for(int i = 0; i < meoples.Count; i++){
+            if(meoples[i] != meoples[curSim]){
+                meoples[i].GetComponent<clothing>().startingRelationshipStatus[curSim] = "Housemate";
+            }
+        }
+        for(int i = 0; i < meoples.Count; i++){
+            if(meoples[i] == meoples[curSim]){
+                for(int j = 0; j < meoples.Count; j++){
+                    if(meoples[j] != meoples[i]){
+                        meoples[i].GetComponent<clothing>().startingRelationshipStatus[j] = "Housemate";
+                    }
+                }
+            }
+        }
+        relationshipUI.Add(nameLabel);
+        relationshipUI.Add(relationshipDropdown);
     }
     private void SaveFamily()
     {

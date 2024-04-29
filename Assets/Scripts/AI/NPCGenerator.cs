@@ -541,10 +541,23 @@ public class NPCGenerator : MonoBehaviour
                 ageScale = 1.0f;
             }
             createdMeople.transform.localScale = new Vector3(ageScale + characterScale, ageScale, ageScale + characterScale);
+            meopleStats.startingRelationshipStatus = meopleData[i].GetRelationshipStatuses();
+            meopleStats.openness = meopleData[i].GetPersonality()[0];
+            meopleStats.agreeableness = meopleData[i].GetPersonality()[1];
+            meopleStats.conscientiousness = meopleData[i].GetPersonality()[2];
+            meopleStats.extraversion = meopleData[i].GetPersonality()[3];
+            meopleStats.neuroticism = meopleData[i].GetPersonality()[4];
+            meopleStats.startingRelationshipStatus = meopleData[i].GetRelationshipStatuses();
             family[i] = createdMeople.GetComponent<Meople>();
         }
         GameMaster.family = family;
         GameMaster.selectedMeople = family[0];
+        for(int j = 0; j < GameMaster.family.Length; j++){
+            for(int i = 0; i < GameMaster.family[j].GetComponent<clothing>().startingRelationshipStatus.Length; i++){
+                GameMaster.family[j].GetComponent<Meople>().relationshipNames[i] = GameMaster.family[j].GetComponent<clothing>().startingRelationshipStatus[i];
+            }
+            GameMaster.family[j].InitializeRelationships();
+        }
     }
     private bool Contains(int a, int[] b)
     {

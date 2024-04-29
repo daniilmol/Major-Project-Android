@@ -8,12 +8,15 @@ public class Conversation : MonoBehaviour
     private Relationship pairRelationship2;
     private bool processingConversation = false;
     private bool requireApology;
+    private int index = -1;
     private int apologyBy;
     private int minimumConversationTime;
     private int maximumConversationTime;
     private int conversationTime;
     private int pleasantness;
     private int negativity;
+    private Meople antiRaceMeople = null;
+    private bool val = false;
     public Conversation(Relationship pairRelationship, Relationship pairRelationShip2, int minimumConversationTime, int maximumConversationTime){
         this.pairRelationship = pairRelationship;
         this.pairRelationship2 = pairRelationShip2;
@@ -22,8 +25,17 @@ public class Conversation : MonoBehaviour
         conversationTime = Random.Range(minimumConversationTime, maximumConversationTime);
         InitializePleasantness();
     }
-    void Start(){
-
+    public void SetAntiRaceConditionMeople(Meople m){
+        if(antiRaceMeople == null){
+            antiRaceMeople = m;
+            m.Talking(true);
+        }
+    }
+    public void SetIndex(int x){
+        index = x;
+    }
+    public int GetIndex(){
+        return index;
     }
     public void SetRelationships(Relationship a, Relationship b, int c, int d){
         pairRelationship = a;
@@ -37,9 +49,9 @@ public class Conversation : MonoBehaviour
     public int GetConversationTime(){
         return conversationTime;
     }
-    public void SelectInteraction(){
+    public void SelectInteraction(Meople m){
         processingConversation = false;
-        if(!processingConversation){
+        if(m.IsTalking()){
             processingConversation = true;
             int typeOfConversation = -1;
             int friendlyScore = Random.Range(-50, 100);
@@ -49,6 +61,7 @@ public class Conversation : MonoBehaviour
             string interactedName = "";
             Relationship.ValueStatus status = pairRelationship.GetValueStatus();
             int[] negativeInteractions = {10, 13, 14, 15, 16};
+            print(status);
             if(friendlyScore >= 0 && status == Relationship.ValueStatus.Acquaintance){
                 typeOfConversation = Random.Range(0, 6);
             }else if(friendlyScore >= 0 && status == Relationship.ValueStatus.Friend){
@@ -68,77 +81,77 @@ public class Conversation : MonoBehaviour
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Small Talk";
                 interactedName = interactionName;
-                pleasantness += 2;
+                AffectPleasantness(2);
                 break;
                 case 1: //discuss new house
                 pairRelationship.AffectRelationship(1);
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Discuss New House";
                 interactedName = interactionName;
-                pleasantness += 5;
+                AffectPleasantness(3);
                 break;
                 case 2: //discuss work
                 pairRelationship.AffectRelationship(1);
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Discuss Work";
                 interactedName = interactionName; 
-                pleasantness += 5;           
+                AffectPleasantness(2);
                 break;
                 case 3: //discuss house members
                 pairRelationship.AffectRelationship(1);
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Discuss House Members";
                 interactedName = interactionName;
-                pleasantness += 8;
+                AffectPleasantness(4);
                 break;
                 case 4: //tell joke
                 pairRelationship.AffectRelationship(1);
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Tell Joke";
                 interactedName = "Listen To Joke";
-                pleasantness += 10;
+                AffectPleasantness(7);
                 break;
                 case 5: //tell story
                 pairRelationship.AffectRelationship(1);
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Tell Story";
                 interactedName = "Listen To Story";
-                pleasantness += 5;
+                AffectPleasantness(5);
                 break;
                 case 6: //friendly hug
                 pairRelationship.AffectRelationship(2);
                 pairRelationship2.AffectRelationship(2);
                 interactionName = "Friendly Hug";
                 interactedName = "Be Hugged";
-                pleasantness += 10;
+                AffectPleasantness(9);
                 break;
                 case 7: //share personal story
                 pairRelationship.AffectRelationship(3);
                 pairRelationship2.AffectRelationship(3);
                 interactionName = "Share Personal Story";
                 interactedName = "Listen To Story";
-                pleasantness += 13;
+                AffectPleasantness(7);
                 break;
                 case 8: //express deep admiration
                 pairRelationship.AffectRelationship(4);
                 pairRelationship2.AffectRelationship(4);
                 interactionName = "Express Admiration";
                 interactedName = "Be Complimented";
-                pleasantness += 17;
+                AffectPleasantness(11);
                 break;
                 case 9: //apologize
                 pairRelationship.AffectRelationship(1);
                 pairRelationship2.AffectRelationship(1);
                 interactionName = "Apologize";
                 interactedName = "Be Apologized To";
-                pleasantness += 10;
+                AffectPleasantness(10);
                 break;
                 case 10: //insult
                 pairRelationship.AffectRelationship(-2);
                 pairRelationship2.AffectRelationship(-2);
                 interactionName = "Insult";
                 interactedName = "Be Insulted";
-                pleasantness -= 8;
+                AffectPleasantness(-8);
                 break;
                 case 11: //brag
                 pairRelationship.AffectRelationship(0);
@@ -157,27 +170,27 @@ public class Conversation : MonoBehaviour
                 pairRelationship2.AffectRelationship(-1);
                 interactionName = "Patronize";
                 interactedName = "Be Patronized";
-                pleasantness -= 2;
+                AffectPleasantness(-2);
                 break;
                 case 14: //lie
                 pairRelationship.AffectRelationship(-2);
                 pairRelationship2.AffectRelationship(-2);
                 interactionName = "Lie";
                 interactedName = "Be Lied To";
-                pleasantness -= 2;
+                AffectPleasantness(-2);
                 break;
                 case 15: //yell at
                 pairRelationship.AffectRelationship(-3);
                 pairRelationship2.AffectRelationship(-3);
                 interactionName = "Yell At";
-                pleasantness -= 10;
+                AffectPleasantness(-10);
                 break;
                 case 16: //fight
                 pairRelationship.AffectRelationship(-5);
                 pairRelationship2.AffectRelationship(-5);
                 interactionName = "Fight";
                 interactedName = interactionName;
-                pleasantness -= 20;
+                AffectPleasantness(-20);
                 break;
             }
             if(meopleInitiator == 0){
@@ -185,33 +198,38 @@ public class Conversation : MonoBehaviour
             }else if(meopleInitiator == 1){
                 GameMaster.RenameConversation(pairRelationship2.GetMeople(), pairRelationship.GetMeople(), interactionName, interactedName);
             }
-                print("Relationship pleasantness " + pairRelationship.GetMeople().GetFirstName() + " and " + pairRelationship2.GetMeople().GetFirstName() + " is " + pleasantness);
-                print("Relationship value " + pairRelationship.GetMeople().GetFirstName() + " and " + pairRelationship2.GetMeople().GetFirstName() + " is " + pairRelationship.GetValue());
+            print("Relationship pleasantness " + pairRelationship.GetMeople().GetFirstName() + " and " + pairRelationship2.GetMeople().GetFirstName() + " is " + pleasantness);
+            print("Relationship value " + pairRelationship.GetMeople().GetFirstName() + " and " + pairRelationship2.GetMeople().GetFirstName() + " is " + pairRelationship.GetValue());
         }
         processingConversation = false;
     }
     private void AffectPleasantness(int value){
         pleasantness += value;
+        if(pleasantness > 100){
+            pleasantness = 100;
+        }else if(pleasantness < -100){
+            pleasantness = -100;
+        }
     }
     private void InitializePleasantness(){
         switch(pairRelationship.GetValueStatus()){
             case Relationship.ValueStatus.Enemy:
-            pleasantness = -25;
+            pleasantness += -6;
             break;
             case Relationship.ValueStatus.Disliked:
-            pleasantness = -10;
+            pleasantness += -3;
             break;
             case Relationship.ValueStatus.Acquaintance:
-            pleasantness = 0;
+            pleasantness += 0;
             break;
             case Relationship.ValueStatus.Friend:
-            pleasantness = 10;
+            pleasantness += 5;
             break;
             case Relationship.ValueStatus.CloseFriend:
-            pleasantness = 25;
+            pleasantness += 8;
             break;
             case Relationship.ValueStatus.BestFriend:
-            pleasantness = 40;
+            pleasantness += 11;
             break;
         }
     }

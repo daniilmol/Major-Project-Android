@@ -52,4 +52,8 @@ public abstract class Need
     public float GetAmount(){
         return amount;
     }
+    public void AlterDrainRate(float amount){
+        drainRate += amount;
+        baseDrainRate += amount;
+    }
 }

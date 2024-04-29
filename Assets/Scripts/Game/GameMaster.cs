@@ -23,6 +23,7 @@ public class GameMaster : MonoBehaviour
     [SerializeField] Image queuePanel;
     [SerializeField] NeedBar[] needBars;
     [SerializeField] Material indicatorColor;
+    [SerializeField] int[] numDaysForAgeUp = new int[5];
     void Awake(){
         Time.timeScale = 1;
         if(gameMaster == null){
@@ -37,6 +38,12 @@ public class GameMaster : MonoBehaviour
         speedButtons[0] = GameObject.Find("x1Speed").GetComponent<Button>();
         speedButtons[1] = GameObject.Find("x3Speed").GetComponent<Button>();
         speedButtons[2] = GameObject.Find("x5Speed").GetComponent<Button>();
+        numDaysForAgeUp[0] = 3;
+        numDaysForAgeUp[1] = 7;
+        numDaysForAgeUp[2] = 10;
+        numDaysForAgeUp[3] = 14;
+        numDaysForAgeUp[4] = 30;
+        numDaysForAgeUp[5] = 15;
     }
     void Start(){
         CreateMeopleSwitchButtons();
@@ -47,6 +54,9 @@ public class GameMaster : MonoBehaviour
             indicator.transform.position = new Vector3(selectedMeople.transform.position.x, selectedMeople.transform.position.y + 3, selectedMeople.transform.position.z);
         }
         UpdateNeedBarValues();
+    }
+    public int[] GetNumDays(){
+        return numDaysForAgeUp;
     }
     private void UpdateNeedBarValues(){
         Color[] needColors = new Color[6];
@@ -95,9 +105,14 @@ public class GameMaster : MonoBehaviour
                 y = i;
             }
         }
-        if(buttonQueuesList[x].Count > 0 && a.FindRepleneshingNeed() == 5){
+        if(buttonQueuesList[x].Count > 0 && buttonQueuesList[y].Count > 0 && a.FindRepleneshingNeed() == 5){
             buttonQueuesList[x][0].GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = ax;
             buttonQueuesList[y][0].GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = bx;
+        }
+    }
+    public void Age(){
+        for(int i = 0; i < family.Length; i++){
+            family[i].AgeUp();
         }
     }
     public static void CreateActionQueueButton(MeopleAction meopleAction, Meople meople){

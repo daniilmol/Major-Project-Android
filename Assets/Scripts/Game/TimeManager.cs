@@ -19,6 +19,7 @@ public class TimeManager : MonoBehaviour
     private int labelIndex;
     private string[] timeLabels = new string[2];
     public static float currentTime;
+    private GameMaster gameMaster;
     private void ToggleLabelIndex(){
         if(labelIndex == 0){
             labelIndex = 1;
@@ -33,6 +34,7 @@ public class TimeManager : MonoBehaviour
     void Start()
     {
         //amountToRotate = 180 / (12 * secondsForHour);
+        gameMaster = GameMaster.gameMaster;
         rot = Vector3.zero;
         hour = 6;
         actualHour = hour;
@@ -62,6 +64,7 @@ public class TimeManager : MonoBehaviour
                 ToggleLabelIndex();
                 if(actualHour > 23){
                     actualHour = 0;
+                    gameMaster.Age();
                 }
             }
         }

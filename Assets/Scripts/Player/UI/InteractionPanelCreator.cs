@@ -68,6 +68,9 @@ public class InteractionPanelCreator : MonoBehaviour
         MeopleAction meopleAction = new MeopleAction(furniture, x);
         GameMaster.selectedMeople.Enqueue(meopleAction);
         GameMaster.selectedMeople.Busy(true);
+        if(furniture.GetInteractions()[0].GetNeedIndex() == 5){
+            furniture.GetComponent<Meople>().Enqueue(new MeopleAction(GameMaster.selectedMeople.GetComponent<Furniture>(), 0));
+        }
         foreach(Transform child in panel.transform){
             Destroy(child.gameObject);
         }

@@ -45,10 +45,21 @@ public class ObjectSelection : MonoBehaviour
         if(!floor){
             List<Interaction> interactions = furniture.GetInteractions();
             interactionMenu.SetActive(true);
-            interactionPanelCreator.CreateButtons(interactions, furniture);
+            // if(furniture.GetComponent<Meople>() != null){
+            //     for(int i = 1; i < interactions.Count;){
+            //         interactions.RemoveAt(i);
+            //     }
+            // }
+            // if(furniture.GetComponent<Meople>() != null && furniture.GetComponent<Meople>() != GameMaster.selectedMeople){
+            //     interactionPanelCreator.CreateButtons(interactions, furniture);
+            // }else 
+            if(furniture.GetComponent<Meople>() == null){
+                interactionPanelCreator.CreateButtons(interactions, furniture);
+            }else{
+                interactionMenu.SetActive(false);
+            }
         }else if(floor){
             interactionMenu.SetActive(true);
-            //create conversation thingies
             Interaction interaction = new Interaction("Go Here", -1, 0, 4, 0, null);
             List<Interaction> interactions = new List<Interaction>();
             interactions.Add(interaction);
